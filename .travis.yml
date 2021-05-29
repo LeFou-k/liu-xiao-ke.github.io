@@ -25,7 +25,7 @@ install:
 
 script: # 执行脚本，清除缓存，生成静态文件
   - hexo clean
-  - Hexo Generate
+  - hexo Generate
 
 
 deploy:
