@@ -10,24 +10,11 @@ branches:
   only:
     - source # 只有 hexo 分支检出更改才触发 CI
 
-- name: Install Pandoc
-  run: |
-  curl -s -L https://github.com/jgm/pandoc/releases/download/2.9.2/pandoc-2.9.2-linux-amd64.tar.gz | tar xvzf - -C $RUNNER_TOOL_CACHE/
-
-- name: Hexo Generate
-  run: |    
-    export PATH="$PATH:$RUNNER_TOOL_CACHE/pandoc-2.9.2/bin"
-    rm -f .yarnclean
-    yarn --frozen-lockfile --ignore-engines --ignore-optional --non-interactive --silent --ignore-scripts --production=false
-    rm -rf ./public
-    yarn run hexo clean
-    yarn run hexo generate
-
-
 before_install: 
   - export TZ='Asia/Shanghai' #配置时区为东八区 UTC+8
   - npm install hexo-cli # 安装 hexo
-  - Install Pandoc
+  - wget https://github.com/jgm/pandoc/releases/download/2.13/pandoc-2.13-1-amd64.deb
+  - dpkg -i ./pandoc-2.13.1-amd64.deb
 
 #  - sudo apt-get install libpng16-dev # 安装 libpng16-dev CI 编译出现相关报错时请取消注释
 
