@@ -1,5 +1,9 @@
 ---
 title: Opencv编译踩坑
+categories: 配置
+tags:
+  - Opencv
+mathjax: false
 ---
 
 # Opencv编译踩坑
