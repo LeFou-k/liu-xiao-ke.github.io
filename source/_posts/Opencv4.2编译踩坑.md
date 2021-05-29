@@ -26,7 +26,7 @@ title: Opencv编译踩坑
    include_directories($OpenCV_INCLUDE_DIR)
    ```
 
-
+<!--more-->
 
 ## Opencv3.2.0
 
