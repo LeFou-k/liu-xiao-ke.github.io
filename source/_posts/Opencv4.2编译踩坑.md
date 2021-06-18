@@ -52,6 +52,3 @@ for file: [/home/yk/opencv-3.2.0/3rdparty/ippicv/downloads/linux-808b791a6eac9ed
 需要手动下载[ippicv](https://raw.githubusercontent.com/Itseez/opencv_3rdparty/81a676001ca8075ada498583e4166079e5744668/ippicv/ippicv_linux_20151201.tgz)再覆盖**opencv3.2/3rdparty/ippicv/downloads/linux-***下的同名文件重新cmake即可。
 
 
-
-
-
