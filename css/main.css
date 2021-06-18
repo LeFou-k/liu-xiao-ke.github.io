@@ -404,7 +404,7 @@ td {
 .highlight-container {
   background: #21252b;
   border-radius: 5px;
-  box-shadow: 0 10px 10px 0 rgba(0,0,0,0.4);
+  box-shadow: 0 5px 10px 0 rgba(0,0,0,0.4);
   padding-top: 30px;
 }
 .highlight-container::before {
@@ -1213,7 +1213,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #40e56b;
+  background: #0a13c9;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
