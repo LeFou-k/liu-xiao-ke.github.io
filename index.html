@@ -162,7 +162,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/18/github-pages+Hexo+Next-latex%E6%B8%B2%E6%9F%93/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/18/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -176,7 +176,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/06/18/github-pages+Hexo+Next-latex%E6%B8%B2%E6%9F%93/" class="post-title-link" itemprop="url">travis CI+Hexo+Next latex渲染</a>
+            <a href="/2021/06/18/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/" class="post-title-link" itemprop="url">travis CI+Hexo+Next latex渲染</a>
         </h2>
 
         <div class="post-meta">
@@ -186,7 +186,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-06-18 14:12:05" itemprop="dateCreated datePublished" datetime="2021-06-18T14:12:05+08:00">2021-06-18</time>
+              <time title="创建时间：2021-06-18 14:22:15" itemprop="dateCreated datePublished" datetime="2021-06-18T14:22:15+08:00">2021-06-18</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -237,9 +237,11 @@
 <p>此时可在本地测试latex公式，理论上可以正确显示：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">a^2 = b^2 + c^2 \label&#123;1&#125;</span><br><span class="line">$$</span><br></pre></td></tr></table></figure>
 <p><span class="math display">\[
-a^2 = b^2 + c^2 \label{1}
+\begin{equation}
+    a^2 = b^2 + c^2 \label{1}
+\end{equation}
 \]</span></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$\eqref&#123;1&#125;$是勾股定理</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$\ref&#123;1&#125;$是勾股定理</span><br></pre></td></tr></table></figure>
 <p><span class="math inline">\(\eqref{1}\)</span>是勾股定理</p>
 <h2 id="修改travis-ci配置">修改travis CI配置</h2>
 <p><code>travis CI</code>是一个持续集成的工具，可将Hexo持续集成并部署到Github Pages，详细的配置过程见<a target="_blank" rel="noopener" href="https://easyhexo.com/1-Hexo-install-and-config/1-5-continuous-integration.html">这里</a>，默认已经配置好<code>travis CI</code>。</p>
@@ -292,7 +294,7 @@ a^2 = b^2 + c^2 \label{1}
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-06-18 14:12:05" itemprop="dateCreated datePublished" datetime="2021-06-18T14:12:05+08:00">2021-06-18</time>
+              <time title="创建时间：2021-06-18 14:22:15" itemprop="dateCreated datePublished" datetime="2021-06-18T14:22:15+08:00">2021-06-18</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
