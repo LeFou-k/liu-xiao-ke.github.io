@@ -83,14 +83,18 @@ a^2 = b^2 + c^2 \label{1}
 $$
 ```
 
+
 $$
-a^2 = b^2 + c^2 \label{1}
+\begin{equation}
+	a^2 = b^2 + c^2 \label{1}
+\end{equation}
 $$
+
 
 
 
 ```latex
-$\eqref{1}$是勾股定理
+$\ref{1}$是勾股定理
 ```
 
 $\eqref{1}$是勾股定理
