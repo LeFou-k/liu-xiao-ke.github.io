@@ -153,7 +153,9 @@ deploy:
 
 其中`before_install`会在`install`阶段之前执行，更多的`travis_CI`用法详见[持续集成服务 Travis CI 教程](http://www.ruanyifeng.com/blog/2017/12/travis_ci_tutorial.html)。
 
-之后按照`travis_CI`提供的方式提交博客，测试成功。
+之后按照`travis_CI`提供的方式提交博客，测试成功（顺便测试我的图床）。
+
+![](https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210618143216597.png)
 
 
 
