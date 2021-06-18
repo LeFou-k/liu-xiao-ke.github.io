@@ -26,7 +26,7 @@ npm un hexo-renderer-marked
 npm install hexo-renderer-pandoc
 ```
 
-
+<!-- more -->
 
 ## 修改主题配置
 
