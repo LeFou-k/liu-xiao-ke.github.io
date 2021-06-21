@@ -1,5 +1,5 @@
 ---
-title: travis CI+Hexo+Next latex渲染
+title: Travis CI+Hexo+Next latex渲染
 categories: 配置
 tags:
   - Hexo
