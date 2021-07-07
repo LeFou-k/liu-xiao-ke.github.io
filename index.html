@@ -14,10 +14,11 @@
 
 <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Fira Code:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":{"enable":true,"caption":true},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="扣舷独啸 不知今夕何夕">
@@ -162,7 +163,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/21/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/07/Microfacet&&Kulla-county/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -176,7 +177,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/06/21/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/" class="post-title-link" itemprop="url">Travis CI+Hexo+Next latex渲染</a>
+            <a href="/2021/07/07/Microfacet&&Kulla-county/" class="post-title-link" itemprop="url">Mircofacet and Kulla-Conty Approximation</a>
         </h2>
 
         <div class="post-meta">
@@ -186,7 +187,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-06-21 14:57:23" itemprop="dateCreated datePublished" datetime="2021-06-21T14:57:23+08:00">2021-06-21</time>
+              <time title="创建时间：2021-07-07 20:34:19" itemprop="dateCreated datePublished" datetime="2021-07-07T20:34:19+08:00">2021-07-07</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -194,7 +195,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%85%8D%E7%BD%AE/" itemprop="url" rel="index"><span itemprop="name">配置</span></a>
+                  <a href="/categories/%E6%B8%B2%E6%9F%93/" itemprop="url" rel="index"><span itemprop="name">渲染</span></a>
                 </span>
             </span>
 
@@ -204,14 +205,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.9k</span>
+              <span>358</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
+              <span>1 分钟</span>
             </span>
 
         </div>
@@ -223,15 +224,20 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>翻阅网络上诸多博客，很难找到一篇完整的hexo next主题支持latex渲染并配置travis CI自动化工具可用的文章，因此发布这篇博客记录下我的配置过程。主要采用Pandoc+MathJax渲染引擎对latex进行渲染。</p>
-<h2 id="安装pandoc">安装Pandoc</h2>
-<p>Pandoc的安装配置过程见<a target="_blank" rel="noopener" href="https://pandoc.org/installing.html">官方网站</a>，在此不过多赘述。</p>
-<h2 id="更换markdown渲染引擎">更换markdown渲染引擎</h2>
-<p>将markdown渲染引擎更换为<code>hexo-renderer-pandoc</code>，命令如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm un hexo-renderer-marked</span><br><span class="line">npm install hexo-renderer-pandoc</span><br></pre></td></tr></table></figure>
+          <p>最近刚做完GAMES202的homework4，对于PBR、Microfacet模型存在一些疑问，故整理成博客以供阅读。</p>
+<h2 id="pbr">PBR</h2>
+<p>PBR(Physically Based Rendering)即一组基于物理原理、尽可能匹配真实物理世界的一组渲染方法，相较于普通方法更加符合物理原理且更加真实。离线渲染的PBR详见<a target="_blank" rel="noopener" href="https://www.pbr-book.org/">pbrt</a>，这里仅讨论实时渲染PBR。</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210707172110505.png" alt="Disney&#39;s Hyperion Renderer" /></p>
+<p>在实时渲染领域，PBR表面材质主要包括Microfacet model（微表面模型）以及Disney Principled BRDFs（Most for artist），然而实际上两者并非严格意义上的<strong>基于物理的渲染</strong>。</p>
+<p>本篇博客主要考虑实时渲染下的Mircofacet模型如何实现PBR，需要满足如下要求：</p>
+<ol type="1">
+<li>基于Microfacet模型</li>
+<li>保持能量守恒​​</li>
+<li>Physically-based BRDF</li>
+</ol>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/06/21/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/#more" rel="contents">
+              <a class="btn" href="/2021/07/07/Microfacet&&Kulla-county/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -255,7 +261,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/21/%E7%AC%AC%E4%B8%80%E7%AF%87/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/07/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -269,7 +275,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/06/21/%E7%AC%AC%E4%B8%80%E7%AF%87/" class="post-title-link" itemprop="url">第一篇</a>
+            <a href="/2021/07/07/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/" class="post-title-link" itemprop="url">Hexo+Next主题+Travis CI搭建过程</a>
         </h2>
 
         <div class="post-meta">
@@ -279,7 +285,103 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-06-21 14:57:23" itemprop="dateCreated datePublished" datetime="2021-06-21T14:57:23+08:00">2021-06-21</time>
+              <time title="创建时间：2021-07-07 20:34:19" itemprop="dateCreated datePublished" datetime="2021-07-07T20:34:19+08:00">2021-07-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%85%8D%E7%BD%AE/" itemprop="url" rel="index"><span itemprop="name">配置</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>翻阅网络上诸多博客，很难找到一篇完整的hexo next主题支持latex渲染并配置travis CI自动化工具可用的文章，因此发布这篇博客记录下我的配置过程。主要采用Pandoc+MathJax渲染引擎对latex进行渲染。</p>
+<p>另外，有许多博客已经讲了如何使用图床插入图片，然而关于<code>pandoc</code>markdown渲染器的图片标题插入会存在诸多大大小小的问题，这里记录以便查阅。</p>
+<p>后续不间断对本篇更新我的配置过程。</p>
+<h2 id="latex渲染支持">Latex渲染支持</h2>
+<h3 id="安装pandoc">安装Pandoc</h3>
+<p>Pandoc的安装配置过程见<a target="_blank" rel="noopener" href="https://pandoc.org/installing.html">官方网站</a>，在此不过多赘述。</p>
+<h3 id="更换markdown渲染引擎">更换markdown渲染引擎</h3>
+<p>将markdown渲染引擎更换为<code>hexo-renderer-pandoc</code>，命令如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm un hexo-renderer-marked</span><br><span class="line">npm install hexo-renderer-pandoc</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/07/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/07/%E7%AC%AC%E4%B8%80%E7%AF%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Liu Ke">
+      <meta itemprop="description" content="扣舷独啸 不知今夕何夕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="观棋柯烂">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/07/%E7%AC%AC%E4%B8%80%E7%AF%87/" class="post-title-link" itemprop="url">第一篇</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-07 20:34:19" itemprop="dateCreated datePublished" datetime="2021-07-07T20:34:19+08:00">2021-07-07</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -321,7 +423,7 @@
 <p>很难不承认的是，从高中毕业至今，我的生活以及个人都发生了翻天覆地的变化。回想起来，高中时候的我反而文气更重一些，酷爱诗词和写文章，议论文以立论奇崛不落俗套为美。当时的我反对一切俗套的、形式化的、浮于表面的事物，追求内在善良美好的本质。上大学后，从高考工厂走出的我第一次接触到如此绚丽多姿的世界，游戏和杂七杂八的网络平台挤占了我的大部分课余时间，虽说高中养成的习惯没有让我落下课业，但一个学期过后你若问我学到了什么，我多半回答不上来。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/06/21/%E7%AC%AC%E4%B8%80%E7%AF%87/#more" rel="contents">
+              <a class="btn" href="/2021/07/07/%E7%AC%AC%E4%B8%80%E7%AF%87/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -409,20 +511,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -464,13 +566,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">5k</span>
+    <span title="站点总字数">6k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">4 分钟</span>
+    <span title="站点阅读时长">5 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -490,6 +592,8 @@
 
   
   <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
 

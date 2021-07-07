@@ -14,29 +14,31 @@
 
 <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Fira Code:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":{"enable":true,"caption":true},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="翻阅网络上诸多博客，很难找到一篇完整的hexo next主题支持latex渲染并配置travis CI自动化工具可用的文章，因此发布这篇博客记录下我的配置过程。主要采用Pandoc+MathJax渲染引擎对latex进行渲染。 安装Pandoc Pandoc的安装配置过程见官方网站，在此不过多赘述。 更换markdown渲染引擎 将markdown渲染引擎更换为hexo-renderer-pand">
+  <meta name="description" content="翻阅网络上诸多博客，很难找到一篇完整的hexo next主题支持latex渲染并配置travis CI自动化工具可用的文章，因此发布这篇博客记录下我的配置过程。主要采用Pandoc+MathJax渲染引擎对latex进行渲染。 另外，有许多博客已经讲了如何使用图床插入图片，然而关于pandocmarkdown渲染器的图片标题插入会存在诸多大大小小的问题，这里记录以便查阅。 后续不间断对本篇更新我的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Travis CI+Hexo+Next latex渲染">
-<meta property="og:url" content="http://example.com/2021/06/21/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/index.html">
+<meta property="og:title" content="Hexo+Next主题+Travis CI搭建过程">
+<meta property="og:url" content="http://example.com/2021/07/07/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/index.html">
 <meta property="og:site_name" content="观棋柯烂">
-<meta property="og:description" content="翻阅网络上诸多博客，很难找到一篇完整的hexo next主题支持latex渲染并配置travis CI自动化工具可用的文章，因此发布这篇博客记录下我的配置过程。主要采用Pandoc+MathJax渲染引擎对latex进行渲染。 安装Pandoc Pandoc的安装配置过程见官方网站，在此不过多赘述。 更换markdown渲染引擎 将markdown渲染引擎更换为hexo-renderer-pand">
+<meta property="og:description" content="翻阅网络上诸多博客，很难找到一篇完整的hexo next主题支持latex渲染并配置travis CI自动化工具可用的文章，因此发布这篇博客记录下我的配置过程。主要采用Pandoc+MathJax渲染引擎对latex进行渲染。 另外，有许多博客已经讲了如何使用图床插入图片，然而关于pandocmarkdown渲染器的图片标题插入会存在诸多大大小小的问题，这里记录以便查阅。 后续不间断对本篇更新我的">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210618143216597.png">
-<meta property="article:published_time" content="2021-06-21T06:57:23.329Z">
-<meta property="article:modified_time" content="2021-06-21T06:57:23.329Z">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/wallhaven-392p2d.jpg">
+<meta property="article:published_time" content="2021-07-07T12:34:19.321Z">
+<meta property="article:modified_time" content="2021-07-07T12:34:19.321Z">
 <meta property="article:author" content="Liu Ke">
 <meta property="article:tag" content="Hexo">
 <meta property="article:tag" content="latex">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210618143216597.png">
 
-<link rel="canonical" href="http://example.com/2021/06/21/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/">
+<link rel="canonical" href="http://example.com/2021/07/07/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/">
 
 
 <script id="page-configurations">
@@ -49,7 +51,7 @@
   };
 </script>
 
-  <title>Travis CI+Hexo+Next latex渲染 | 观棋柯烂</title>
+  <title>Hexo+Next主题+Travis CI搭建过程 | 观棋柯烂</title>
   
 
 
@@ -169,7 +171,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/21/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/07/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -182,7 +184,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Travis CI+Hexo+Next latex渲染
+          Hexo+Next主题+Travis CI搭建过程
         </h1>
 
         <div class="post-meta">
@@ -192,7 +194,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-06-21 14:57:23" itemprop="dateCreated datePublished" datetime="2021-06-21T14:57:23+08:00">2021-06-21</time>
+              <time title="创建时间：2021-07-07 20:34:19" itemprop="dateCreated datePublished" datetime="2021-07-07T20:34:19+08:00">2021-07-07</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -210,7 +212,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.9k</span>
+              <span>3.3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -230,13 +232,16 @@
 
       
         <p>翻阅网络上诸多博客，很难找到一篇完整的hexo next主题支持latex渲染并配置travis CI自动化工具可用的文章，因此发布这篇博客记录下我的配置过程。主要采用Pandoc+MathJax渲染引擎对latex进行渲染。</p>
-<h2 id="安装pandoc">安装Pandoc</h2>
+<p>另外，有许多博客已经讲了如何使用图床插入图片，然而关于<code>pandoc</code>markdown渲染器的图片标题插入会存在诸多大大小小的问题，这里记录以便查阅。</p>
+<p>后续不间断对本篇更新我的配置过程。</p>
+<h2 id="latex渲染支持">Latex渲染支持</h2>
+<h3 id="安装pandoc">安装Pandoc</h3>
 <p>Pandoc的安装配置过程见<a target="_blank" rel="noopener" href="https://pandoc.org/installing.html">官方网站</a>，在此不过多赘述。</p>
-<h2 id="更换markdown渲染引擎">更换markdown渲染引擎</h2>
+<h3 id="更换markdown渲染引擎">更换markdown渲染引擎</h3>
 <p>将markdown渲染引擎更换为<code>hexo-renderer-pandoc</code>，命令如下</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm un hexo-renderer-marked</span><br><span class="line">npm install hexo-renderer-pandoc</span><br></pre></td></tr></table></figure>
 <span id="more"></span>
-<h2 id="修改主题配置">修改主题配置</h2>
+<h3 id="修改主题配置">修改主题配置</h3>
 <p>修改next主题配置，next主题配置文件一般为<code>themes/next/_config.yml</code>文件，作如下修改方式：</p>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Math Formulas Render Support</span></span><br><span class="line"><span class="attr">math:</span></span><br><span class="line">  <span class="comment"># Default (true) will load mathjax / katex script on demand.</span></span><br><span class="line">  <span class="comment"># That is it only render those page which has `mathjax: true` in Front-matter.</span></span><br><span class="line">  <span class="comment"># If you set it to false, it will load mathjax / katex srcipt EVERY PAGE.</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">per_page:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># hexo-renderer-pandoc (or hexo-renderer-kramed) required for full MathJax support.</span></span><br><span class="line">  <span class="attr">mathjax:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span> <span class="comment"># 默认这里为false，改为true即可</span></span><br><span class="line">    <span class="comment"># See: https://mhchem.github.io/MathJax-mhchem/</span></span><br><span class="line">    <span class="attr">mhchem:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># hexo-renderer-markdown-it-plus (or hexo-renderer-markdown-it with markdown-it-katex plugin) required for full Katex support.</span></span><br><span class="line">  <span class="attr">katex:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># See: https://github.com/KaTeX/KaTeX/tree/master/contrib/copy-tex</span></span><br><span class="line">    <span class="attr">copy_tex:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure>
 <p>另外需要提供Mathjax的cdn地址，一般只需将注释行取消注释即可：</p>
@@ -250,15 +255,22 @@
 \]</span></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$\ref&#123;1&#125;$是勾股定理</span><br></pre></td></tr></table></figure>
 <p><span class="math inline">\(\eqref{1}\)</span>是勾股定理</p>
-<h2 id="修改travis-ci配置">修改travis CI配置</h2>
+<h3 id="修改travis-ci配置">修改travis CI配置</h3>
 <p><code>travis CI</code>是一个持续集成的工具，可将Hexo持续集成并部署到Github Pages，详细的配置过程见<a target="_blank" rel="noopener" href="https://easyhexo.com/1-Hexo-install-and-config/1-5-continuous-integration.html">这里</a>，默认已经配置好<code>travis CI</code>。</p>
 <p>在博客目录下的<code>.travis.yml</code>文件中作如下修改，关键是在脚本中写好安装<code>pandoc</code>并更换渲染器的代码</p>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">language:</span> <span class="string">node_js</span> <span class="comment"># 编译语言、环境</span></span><br><span class="line"></span><br><span class="line"><span class="attr">sudo:</span> <span class="string">required</span> <span class="comment"># 需要管理员权限</span></span><br><span class="line"></span><br><span class="line"><span class="attr">dist:</span> <span class="string">xenial</span> <span class="comment"># 指定 CI 系统版本为 Ubuntu16.04 LTS</span></span><br><span class="line"></span><br><span class="line"><span class="attr">node_js:</span> <span class="string">stable</span> <span class="comment">#Node.js 版本</span></span><br><span class="line"></span><br><span class="line"><span class="attr">branches:</span></span><br><span class="line">  <span class="attr">only:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">source</span> <span class="comment"># 只有 hexo 分支检出更改才触发 CI</span></span><br><span class="line"></span><br><span class="line"><span class="attr">before_install:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">export</span> <span class="string">TZ=&#x27;Asia/Shanghai&#x27;</span> <span class="comment">#配置时区为东八区 UTC+8</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">npm</span> <span class="string">install</span> <span class="string">hexo-cli</span> <span class="comment"># 安装 hexo</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">wget</span> <span class="string">https://github.com/jgm/pandoc/releases/download/2.7/pandoc-2.7-1-amd64.deb</span> <span class="comment"># 下载pandoc</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">sudo</span> <span class="string">dpkg</span> <span class="string">-i</span> <span class="string">./pandoc-2.7-1-amd64.deb</span> <span class="comment"># 以sudo方式安装</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#  - sudo apt-get install libpng16-dev # 安装 libpng16-dev CI 编译出现相关报错时请取消注释</span></span><br><span class="line"></span><br><span class="line"><span class="attr">install:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">npm</span> <span class="string">install</span> <span class="comment"># 安装依赖</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">npm</span> <span class="string">uninstall</span> <span class="string">hexo-renderer-marked</span> <span class="string">--save</span> <span class="comment"># 同上，更换markdown渲染器</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">npm</span> <span class="string">install</span> <span class="string">hexo-renderer-pandoc</span> <span class="string">--save</span></span><br><span class="line"></span><br><span class="line"><span class="attr">script:</span> <span class="comment"># 执行脚本，清除缓存，生成静态文件</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">hexo</span> <span class="string">clean</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">hexo</span> <span class="string">Generate</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">provider:</span> <span class="string">pages</span></span><br><span class="line">  <span class="attr">skip_cleanup:</span> <span class="literal">true</span> <span class="comment"># 跳过清理</span></span><br><span class="line">  <span class="attr">local_dir:</span> <span class="string">public</span> <span class="comment"># 需要推送到 GitHub 的静态文件目录 </span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">$GIT_NAME</span> <span class="comment"># 用户名变量</span></span><br><span class="line">  <span class="attr">email:</span> <span class="string">$GIT_EMAIL</span> <span class="comment"># 用户邮箱变量</span></span><br><span class="line">  <span class="attr">github_token:</span> <span class="string">$GITHUB_TOKEN</span> <span class="comment"># GitHub Token 变量</span></span><br><span class="line">  <span class="attr">keep-history:</span> <span class="literal">true</span> <span class="comment"># 保持推送记录，以增量提交的方式</span></span><br><span class="line">  <span class="attr">target-branch:</span> <span class="string">post</span> <span class="comment"># 推送的目标分支 local_dir-&gt;&gt;master 分支</span></span><br><span class="line">  <span class="attr">on:</span></span><br><span class="line">    <span class="attr">branch:</span> <span class="string">source</span> <span class="comment"># 工作分支</span></span><br></pre></td></tr></table></figure>
 <p>其中<code>before_install</code>会在<code>install</code>阶段之前执行，更多的<code>travis_CI</code>用法详见<a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2017/12/travis_ci_tutorial.html">持续集成服务 Travis CI 教程</a>。</p>
 <p>之后按照<code>travis_CI</code>提供的方式提交博客，测试成功（顺便测试我的图床）。</p>
-<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210618143216597.png" /></p>
-<h2 id="总结">总结</h2>
-<p><code>travis_CI</code>的持续集成配置过程和本地类似，后续更多的功能实现也相应修改脚本文件<code>.travis.yml</code>即可。</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210618143216597.png" alt="latex测试" /></p>
+<h2 id="图片标题支持">图片标题支持</h2>
+<p>矛盾点在于我们利用<code>pandoc</code>作为hexo的markdown渲染器后，<code>pandoc</code>会自动渲染如下格式中的图片标题：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">![<span class="string">标题</span>](<span class="link">/imagesource</span>)</span><br></pre></td></tr></table></figure>
+<p>而标题会自动左对齐且样式与正文无疑，十分丑陋，首先需要配置<code>pandoc</code>使得其对图片标题不进行渲染，从而便于采用<code>next</code>主题的<code>fancybox</code>进行配置，在hexo配置文件<code>_config.yml</code>添加如下内容：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">pandoc:</span></span><br><span class="line">  <span class="attr">extensions:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">&#x27;-implicit_figures&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>接着需要启用<code>next</code>主题中对此的配置，在<code>next</code>主题中的<code>config.yml</code>找到<code>fancybox</code>并添加如下配置即可：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">fancybox:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">caption:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>对于标题样式的修改可在<code>next\source\css\_common\components\post\post.styl</code>中找到<code>.image-caption</code>修改，例如我自己将<code>margin-top</code>稍微调大了些，更加美观，测试结果如下图所示：</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/wallhaven-392p2d.jpg" alt="测试图片" /></p>
 
     </div>
 
@@ -278,10 +290,13 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/06/21/%E7%AC%AC%E4%B8%80%E7%AF%87/" rel="prev" title="第一篇">
+    <a href="/2021/07/07/%E7%AC%AC%E4%B8%80%E7%AF%87/" rel="prev" title="第一篇">
       <i class="fa fa-chevron-left"></i> 第一篇
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/07/Microfacet&&Kulla-county/" rel="next" title="Mircofacet and Kulla-Conty Approximation">
+      Mircofacet and Kulla-Conty Approximation <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -340,7 +355,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85pandoc"><span class="nav-number">1.</span> <span class="nav-text">安装Pandoc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%8D%A2markdown%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E"><span class="nav-number">2.</span> <span class="nav-text">更换markdown渲染引擎</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E4%B8%BB%E9%A2%98%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">修改主题配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9travis-ci%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">修改travis CI配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#latex%E6%B8%B2%E6%9F%93%E6%94%AF%E6%8C%81"><span class="nav-number">1.</span> <span class="nav-text">Latex渲染支持</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85pandoc"><span class="nav-number">1.1.</span> <span class="nav-text">安装Pandoc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%8D%A2markdown%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8E"><span class="nav-number">1.2.</span> <span class="nav-text">更换markdown渲染引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E4%B8%BB%E9%A2%98%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.</span> <span class="nav-text">修改主题配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9travis-ci%E9%85%8D%E7%BD%AE"><span class="nav-number">1.4.</span> <span class="nav-text">修改travis CI配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%BE%E7%89%87%E6%A0%87%E9%A2%98%E6%94%AF%E6%8C%81"><span class="nav-number">2.</span> <span class="nav-text">图片标题支持</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -356,20 +371,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -411,13 +426,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">5k</span>
+    <span title="站点总字数">6k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">4 分钟</span>
+    <span title="站点阅读时长">5 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -437,6 +452,8 @@
 
   
   <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
 

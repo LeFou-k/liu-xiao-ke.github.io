@@ -21,17 +21,23 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":{"enable":true,"caption":true},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="扣舷独啸 不知今夕何夕">
-<meta property="og:type" content="website">
-<meta property="og:title" content="观棋柯烂">
-<meta property="og:url" content="http://example.com/categories/%E9%9A%8F%E7%AC%94/index.html">
+  <meta name="description" content="最近刚做完GAMES202的homework4，对于PBR、Microfacet模型存在一些疑问，故整理成博客以供阅读。 PBR PBR(Physically Based Rendering)即一组基于物理原理、尽可能匹配真实物理世界的一组渲染方法，相较于普通方法更加符合物理原理且更加真实。离线渲染的PBR详见pbrt，这里仅讨论实时渲染PBR。  在实时渲染领域，PBR表面材质主要包括Micro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mircofacet and Kulla-Conty Approximation">
+<meta property="og:url" content="http://example.com/2021/07/07/Microfacet&&Kulla-county/index.html">
 <meta property="og:site_name" content="观棋柯烂">
-<meta property="og:description" content="扣舷独啸 不知今夕何夕">
+<meta property="og:description" content="最近刚做完GAMES202的homework4，对于PBR、Microfacet模型存在一些疑问，故整理成博客以供阅读。 PBR PBR(Physically Based Rendering)即一组基于物理原理、尽可能匹配真实物理世界的一组渲染方法，相较于普通方法更加符合物理原理且更加真实。离线渲染的PBR详见pbrt，这里仅讨论实时渲染PBR。  在实时渲染领域，PBR表面材质主要包括Micro">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210707172110505.png">
+<meta property="article:published_time" content="2021-07-07T12:34:19.321Z">
+<meta property="article:modified_time" content="2021-07-07T12:34:19.321Z">
 <meta property="article:author" content="Liu Ke">
+<meta property="article:tag" content="RTR">
+<meta property="article:tag" content="PBR">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210707172110505.png">
 
-<link rel="canonical" href="http://example.com/categories/%E9%9A%8F%E7%AC%94/">
+<link rel="canonical" href="http://example.com/2021/07/07/Microfacet&&Kulla-county/">
 
 
 <script id="page-configurations">
@@ -39,12 +45,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>分类: 随笔 | 观棋柯烂</title>
+  <title>Mircofacet and Kulla-Conty Approximation | 观棋柯烂</title>
   
 
 
@@ -157,51 +163,114 @@
         <div class="content-wrap">
           
 
-          <div class="content category">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h2 class="collection-header">随笔
-          <small>分类</small>
-        </h2>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/07/Microfacet&&Kulla-county/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Liu Ke">
+      <meta itemprop="description" content="扣舷独啸 不知今夕何夕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="观棋柯烂">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mircofacet and Kulla-Conty Approximation
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-07 20:34:19" itemprop="dateCreated datePublished" datetime="2021-07-07T20:34:19+08:00">2021-07-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%B2%E6%9F%93/" itemprop="url" rel="index"><span itemprop="name">渲染</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>358</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2021</span>
+        <p>最近刚做完GAMES202的homework4，对于PBR、Microfacet模型存在一些疑问，故整理成博客以供阅读。</p>
+<h2 id="pbr">PBR</h2>
+<p>PBR(Physically Based Rendering)即一组基于物理原理、尽可能匹配真实物理世界的一组渲染方法，相较于普通方法更加符合物理原理且更加真实。离线渲染的PBR详见<a target="_blank" rel="noopener" href="https://www.pbr-book.org/">pbrt</a>，这里仅讨论实时渲染PBR。</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210707172110505.png" alt="Disney&#39;s Hyperion Renderer" /></p>
+<p>在实时渲染领域，PBR表面材质主要包括Microfacet model（微表面模型）以及Disney Principled BRDFs（Most for artist），然而实际上两者并非严格意义上的<strong>基于物理的渲染</strong>。</p>
+<p>本篇博客主要考虑实时渲染下的Mircofacet模型如何实现PBR，需要满足如下要求：</p>
+<ol type="1">
+<li>基于Microfacet模型</li>
+<li>保持能量守恒​​</li>
+<li>Physically-based BRDF</li>
+</ol>
+<span id="more"></span>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-07-07T20:34:19+08:00"
-              content="2021-07-07">
-          07-07
-        </time>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/RTR/" rel="tag"># RTR</a>
+              <a href="/tags/PBR/" rel="tag"># PBR</a>
+          </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/07/07/%E7%AC%AC%E4%B8%80%E7%AF%87/" itemprop="url">
-            <span itemprop="name">第一篇</span>
-          </a>
-      </div>
+        
 
-    </header>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/07/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/" rel="prev" title="Hexo+Next主题+Travis CI搭建过程">
+      <i class="fa fa-chevron-left"></i> Hexo+Next主题+Travis CI搭建过程
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
   </article>
-
-    </div>
-  </div>
   
   
-  
-
   
 
 
@@ -254,6 +323,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#pbr"><span class="nav-number">1.</span> <span class="nav-text">PBR</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -387,6 +457,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
