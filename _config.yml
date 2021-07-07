@@ -106,3 +106,6 @@ deploy:
   repo: https://github.com/liu-xiao-ke/liu-xiao-ke.github.io.git
   branch: source
 
+pandoc:
+  extensions:
+    - '-implicit_figures'

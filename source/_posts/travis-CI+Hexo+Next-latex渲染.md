@@ -1,5 +1,5 @@
 ---
-title: Travis CI+Hexo+Next latex渲染
+title: Hexo+Next主题+Travis CI搭建过程
 categories: 配置
 tags:
   - Hexo
@@ -9,15 +9,21 @@ mathjax: true
 
 翻阅网络上诸多博客，很难找到一篇完整的hexo next主题支持latex渲染并配置travis CI自动化工具可用的文章，因此发布这篇博客记录下我的配置过程。主要采用Pandoc+MathJax渲染引擎对latex进行渲染。
 
+另外，有许多博客已经讲了如何使用图床插入图片，然而关于`pandoc`markdown渲染器的图片标题插入会存在诸多大大小小的问题，这里记录以便查阅。
+
+后续不间断对本篇更新我的配置过程。
 
 
-## 安装Pandoc
+
+## Latex渲染支持
+
+### 安装Pandoc
 
 Pandoc的安装配置过程见[官方网站](https://pandoc.org/installing.html)，在此不过多赘述。
 
 
 
-## 更换markdown渲染引擎
+### 更换markdown渲染引擎
 
 将markdown渲染引擎更换为`hexo-renderer-pandoc`，命令如下
 
@@ -28,7 +34,7 @@ npm install hexo-renderer-pandoc
 
 <!-- more -->
 
-## 修改主题配置
+### 修改主题配置
 
 修改next主题配置，next主题配置文件一般为`themes/next/_config.yml`文件，作如下修改方式：
 
@@ -101,7 +107,7 @@ $\eqref{1}$是勾股定理
 
 
 
-## 修改travis CI配置
+### 修改travis CI配置
 
 `travis CI`是一个持续集成的工具，可将Hexo持续集成并部署到Github Pages，详细的配置过程见[这里](https://easyhexo.com/1-Hexo-install-and-config/1-5-continuous-integration.html)，默认已经配置好`travis CI`。
 
@@ -155,10 +161,39 @@ deploy:
 
 之后按照`travis_CI`提供的方式提交博客，测试成功（顺便测试我的图床）。
 
-![](https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210618143216597.png)
+
+
+![latex测试](https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210618143216597.png)
 
 
 
-## 总结
+## 图片标题支持
 
-`travis_CI`的持续集成配置过程和本地类似，后续更多的功能实现也相应修改脚本文件`.travis.yml`即可。
+矛盾点在于我们利用`pandoc`作为hexo的markdown渲染器后，`pandoc`会自动渲染如下格式中的图片标题：
+
+```markdown
+![标题](/imagesource)
+```
+
+而标题会自动左对齐且样式与正文无疑，十分丑陋，首先需要配置`pandoc`使得其对图片标题不进行渲染，从而便于采用`next`主题的`fancybox`进行配置，在hexo配置文件`_config.yml`添加如下内容：
+
+```yml
+pandoc:
+  extensions:
+    - '-implicit_figures'
+```
+
+接着需要启用`next`主题中对此的配置，在`next`主题中的`config.yml`找到`fancybox`并添加如下配置即可：
+
+```yml
+fancybox:
+  enable: true
+  caption: true
+```
+
+对于标题样式的修改可在`next\source\css\_common\components\post\post.styl`中找到`.image-caption`修改，例如我自己将`margin-top`稍微调大了些，更加美观，测试结果如下图所示：
+
+![测试图片](https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/wallhaven-392p2d.jpg)
+
+
+
