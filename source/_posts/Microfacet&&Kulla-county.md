@@ -211,7 +211,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 
 #### Comparison
 
-![Beckmann(red),Phong(blue),GGX(green) distribution functions](https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/20210708180459.png)
+![Beckmann(red), Phong(blue), GGX(green) distribution functions](https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/20210708180459.png)
 
 
 
