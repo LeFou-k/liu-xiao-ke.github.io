@@ -12,7 +12,7 @@
 
 <link rel="stylesheet" href="/css/main.css">
 
-<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans SC:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|Fira Code:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Serif SC:300,300italic,400,400italic,700,700italic|Roboto Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
@@ -24,20 +24,25 @@
   <meta name="description" content="最近刚做完GAMES202的homework4，对于PBR、Microfacet模型存在一些疑问，故整理成博客以供阅读。 PBR PBR(Physically Based Rendering)即一组基于物理原理、尽可能匹配真实物理世界的一组渲染方法，相较于普通方法更加符合物理原理且更加真实。离线渲染的PBR详见pbrt，这里仅讨论实时渲染PBR。  在实时渲染领域，PBR表面材质主要包括Micro">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Mircofacet and Kulla-Conty Approximation">
-<meta property="og:url" content="http://example.com/2021/07/07/Microfacet&&Kulla-county/index.html">
+<meta property="og:url" content="http://example.com/2021/07/08/Microfacet&&Kulla-county/index.html">
 <meta property="og:site_name" content="观棋柯烂">
 <meta property="og:description" content="最近刚做完GAMES202的homework4，对于PBR、Microfacet模型存在一些疑问，故整理成博客以供阅读。 PBR PBR(Physically Based Rendering)即一组基于物理原理、尽可能匹配真实物理世界的一组渲染方法，相较于普通方法更加符合物理原理且更加真实。离线渲染的PBR详见pbrt，这里仅讨论实时渲染PBR。  在实时渲染领域，PBR表面材质主要包括Micro">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210707172110505.png">
-<meta property="article:published_time" content="2021-07-07T12:46:55.633Z">
-<meta property="article:modified_time" content="2021-07-07T12:46:55.633Z">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210708094742444.png">
+<meta property="og:image" content="https://learnopengl.com/img/pbr/microfacets_light_rays.png">
+<meta property="og:image" content="https://learnopengl.com/img/pbr/ndf.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210708104047492.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210708112109987.png">
+<meta property="article:published_time" content="2021-07-08T03:45:21.271Z">
+<meta property="article:modified_time" content="2021-07-08T03:45:21.271Z">
 <meta property="article:author" content="Liu Ke">
 <meta property="article:tag" content="RTR">
 <meta property="article:tag" content="PBR">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210707172110505.png">
 
-<link rel="canonical" href="http://example.com/2021/07/07/Microfacet&&Kulla-county/">
+<link rel="canonical" href="http://example.com/2021/07/08/Microfacet&&Kulla-county/">
 
 
 <script id="page-configurations">
@@ -170,7 +175,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/07/Microfacet&&Kulla-county/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/08/Microfacet&&Kulla-county/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -193,7 +198,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-07-07 20:46:55" itemprop="dateCreated datePublished" datetime="2021-07-07T20:46:55+08:00">2021-07-07</time>
+              <time title="创建时间：2021-07-08 11:45:21" itemprop="dateCreated datePublished" datetime="2021-07-08T11:45:21+08:00">2021-07-08</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -211,14 +216,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>358</span>
+              <span>2.9k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>3 分钟</span>
             </span>
 
         </div>
@@ -230,18 +235,77 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>最近刚做完GAMES202的homework4，对于PBR、Microfacet模型存在一些疑问，故整理成博客以供阅读。</p>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>最近刚做完GAMES202的homework4，对于PBR、Microfacet模型存在一些疑问，故整理成博客以供阅读。</p>
 <h2 id="pbr">PBR</h2>
 <p>PBR(Physically Based Rendering)即一组基于物理原理、尽可能匹配真实物理世界的一组渲染方法，相较于普通方法更加符合物理原理且更加真实。离线渲染的PBR详见<a target="_blank" rel="noopener" href="https://www.pbr-book.org/">pbrt</a>，这里仅讨论实时渲染PBR。</p>
 <p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210707172110505.png" alt="Disney&#39;s Hyperion Renderer" /></p>
-<p>在实时渲染领域，PBR表面材质主要包括Microfacet model（微表面模型）以及Disney Principled BRDFs（Most for artist），然而实际上两者并非严格意义上的<strong>基于物理的渲染</strong>。</p>
+<p>在实时渲染领域，PBR表面材质主要包括Microfacet model（微表面模型）以及Disney Principled BRDFs（Most for artists），然而实际上两者并非严格意义上的<strong>基于物理的渲染</strong>，大多还是对物理规则的近似。</p>
 <p>本篇博客主要考虑实时渲染下的Mircofacet模型如何实现PBR，需要满足如下要求：</p>
 <ol type="1">
 <li>基于Microfacet模型</li>
 <li>保持能量守恒​​</li>
 <li>Physically-based BRDF</li>
+<li>实时级别的性能</li>
 </ol>
 <span id="more"></span>
+<h2 id="microfacet-model">Microfacet Model</h2>
+<p>通常情况下我们将物体表面的反射情况分为diffuse、specular以及两者之间的glossy情况：</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210708094742444.png" alt="Diffuse, Mirror, Glossy" /></p>
+<p>然而Microfacet Model通常被认为是对物理世界物体表面的完美模拟，Microfacet Model认为物体表面是由很多Microfacet（微表面）集合构成的，在这些Microfacet上服从<strong>镜面反射</strong>原理。根据微元法的思想，在足够小的Microfacet上使用镜面反射原理去计算，那么累加起来后的结果也会足够接近真实结果，因此我们可以认为Microfacet Model是一种相对准确的模型。</p>
+<p><img src="https://learnopengl.com/img/pbr/microfacets_light_rays.png" alt="Microfacet surface" /></p>
+<p>将表面划分的足够细后，如何区分不同粗糙程度的表面呢？显而易见的是，根据表面的粗糙系数可构建Microfacet模型，即越粗糙理论上微表面应该越多且越“坑坑洼洼”，那么进一步“坑坑洼洼”如何体现呢？如果把每个微表面看作镜面，那么法向量可以确定这个镜面，粗略估计下来，越粗糙的平面意味着这些法向量的分布越不集中，反之则越集中。这些法向量同样也是每个微表面上的入射光线和出射光线的<code>halfway vector</code>，定义为<span class="math inline">\(h\)</span>，<span class="math inline">\(h\)</span>的具体计算方式如下： <span class="math display">\[
+h = \frac{l+v}{||l+v||} \label{1}
+\]</span></p>
+<p>下图是<code>roughness</code>从0.1递增至1.0的中间结果：</p>
+<p><img src="https://learnopengl.com/img/pbr/ndf.png" alt="Visualized NDF (Normalized Distribution Function)" /></p>
+<h3 id="microfaect-brdf">Microfaect BRDF</h3>
+<p>实际上，对于Microfacet模型，我们几乎不会将之视为很多表面来具体计算，一方面这些Microfacet过小以至于我们很难观察到它的细节，另一方面过多的Microfacet会大大增加计算量，实际使用中常常使用Macrosurface来代替Microsurface，见下图：</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210708104047492.png" alt="Micro v.s. marco surface" /></p>
+<p>在Macrosurface中，我们会使用microfacet分布函数<span class="math inline">\(D\)</span>，shadowing-masking函数<span class="math inline">\(G\)</span>，再加上Fresnel term<span class="math inline">\(F\)</span>共同构成Microfacet BRDF，如下： <span class="math display">\[
+f(i,o)=\frac{F(i,h)G(i,o,h)D(h)}{4(n,i)(n,o)}\label{2}
+\]</span></p>
+<p>下面分别介绍<span class="math inline">\(F\)</span>，<span class="math inline">\(G\)</span>，<span class="math inline">\(D\)</span></p>
+<h3 id="fresnel-term">Fresnel term</h3>
+<p>菲涅尔项（Fresnel term）描述了不同观察角度的表面反射情况，以下图为例，<strong>观察角度（和平面法线夹角）越大</strong>，木板地面的反射就越清晰（和光的偏振有关）。</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210708112109987.png" alt="Reflectance increase with gazing angle" /></p>
+<p>菲涅尔项的计算公式是十分复杂的： <span class="math display">\[
+R_{\mathrm{s}}=\left|\frac{n_{1} \cos \theta_{\mathrm{i}}-n_{2} \cos \theta_{\mathrm{t}}}{n_{1} \cos \theta_{\mathrm{i}}+n_{2} \cos \theta_{\mathrm{t}}}\right|^{2}=\left|\frac{n_{1} \cos \theta_{\mathrm{i}}-n_{2} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}}{n_{1} \cos \theta_{\mathrm{i}}+n_{2} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}}\right|^{2}
+\]</span></p>
+<p><span class="math display">\[
+R_{\mathrm{p}}=\left|\frac{n_{1} \cos \theta_{\mathrm{t}}-n_{2} \cos \theta_{\mathrm{i}}}{n_{1} \cos \theta_{\mathrm{t}}+n_{2} \cos \theta_{\mathrm{i}}}\right|^{2}=\left|\frac{n_{1} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}-n_{2} \cos \theta_{\mathrm{i}}}}{n_{1} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}+n_{2} \cos \theta_{\mathrm{i}}}\right|
+\]</span></p>
+<p>反射比是两者的算术平均值：</p>
+<p><span class="math display">\[
+R_{\mathrm{eff}}=\frac{1}{2}\left(R_{\mathrm{s}}+R_{\mathrm{p}}\right)
+\]</span></p>
+<p>通常情况下我们采用<code>Schlick's approximation</code>对菲涅尔项进行估计，即光从折射率为<span class="math inline">\(n_1\)</span>的介质向另一种折射率为<span class="math inline">\(n_2\)</span>的介质传播时，菲涅尔项有：</p>
+<p><span class="math display">\[
+R(\theta)=R_{0}+\left(1-R_{0}\right)(1-\cos \theta)^{5}\label{6}
+\]</span></p>
+<p><span class="math display">\[
+R_0=\left(\frac{n_1-n_2}{n_1+n_2}\right)^{2}\label{7}
+\]</span></p>
+<p>如此代码的实现就非常简单了，这里以<code>glsl</code>为例：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">vec3</span> fresnelSchlick(<span class="type">vec3</span> R0, <span class="type">vec3</span> V, <span class="type">vec3</span> H)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> R0 + (<span class="number">1.0</span> - R0) * <span class="built_in">pow</span>((<span class="number">1.0</span> - <span class="built_in">max</span>(<span class="number">0.0001</span>, <span class="built_in">dot</span>(V, H))), <span class="number">5.0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于<code>Schlick's approximation</code>，<span class="math inline">\(R_0\)</span>项通常需要我们自己取，对绝缘体来说<span class="math inline">\(R_0\)</span>可以取0.04，对导体而言<span class="math inline">\(R_0\)</span>可以去取0.92。</p>
+<p>总结，菲涅尔项的<code>Schlick's approximation</code>取决于<strong>光线发射的介质与穿过的介质</strong>以及<strong>观察向量与平面法向量</strong>的夹角。</p>
+<h2 id="参考资料">参考资料</h2>
+<div id="footnotes">
+<hr>
+<div id="footnotelist">
+<ol style="list-style: none; padding-left: 0; margin-left: 40px">
+<li id="fn:1">
+<span style="display: inline-block; vertical-align: top; padding-right: 10px; margin-left: -40px">1.</span><span style="display: inline-block; vertical-align: top; margin-left: 10px;">https://www.graphics.cornell.edu/~bjw/microfacetbsdf.pdf<a href="#fnref:1" rev="footnote"> ↩</a></span>
+</li>
+<li id="fn:2">
+<span style="display: inline-block; vertical-align: top; padding-right: 10px; margin-left: -40px">2.</span><span style="display: inline-block; vertical-align: top; margin-left: 10px;">https://learnopengl.com/PBR/Theory<a href="#fnref:2" rev="footnote"> ↩</a></span>
+</li>
+<li id="fn:3">
+<span style="display: inline-block; vertical-align: top; padding-right: 10px; margin-left: -40px">3.</span><span style="display: inline-block; vertical-align: top; margin-left: 10px;">https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html<a href="#fnref:3" rev="footnote"> ↩</a></span>
+</li>
+</ol>
+</div>
+</div>
 
     </div>
 
@@ -261,7 +325,7 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/07/07/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/" rel="prev" title="Hexo+Next主题+Travis CI搭建过程">
+    <a href="/2021/07/08/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/" rel="prev" title="Hexo+Next主题+Travis CI搭建过程">
       <i class="fa fa-chevron-left"></i> Hexo+Next主题+Travis CI搭建过程
     </a></div>
       <div class="post-nav-item"></div>
@@ -323,7 +387,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#pbr"><span class="nav-number">1.</span> <span class="nav-text">PBR</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#pbr"><span class="nav-number">1.</span> <span class="nav-text">PBR</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#microfacet-model"><span class="nav-number">2.</span> <span class="nav-text">Microfacet Model</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#microfaect-brdf"><span class="nav-number">2.1.</span> <span class="nav-text">Microfaect BRDF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fresnel-term"><span class="nav-number">2.2.</span> <span class="nav-text">Fresnel term</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -394,13 +458,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">6k</span>
+    <span title="站点总字数">8k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">5 分钟</span>
+    <span title="站点阅读时长">7 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
