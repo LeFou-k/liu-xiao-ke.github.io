@@ -108,7 +108,7 @@ $$
 R_0=\left(\frac{n_1-n_2}{n_1+n_2}\right)^{2}\label{7}
 $$
 
-如此代码的实现就非常简单了，这里以`glsl`为例：
+如此代码的实现就非常简单了，由公式$\eqref{6}$和$\eqref{7}$可轻松得到，这里以`glsl`为例：
 
 ```glsl
 vec3 fresnelSchlick(vec3 R0, vec3 V, vec3 H)
@@ -117,7 +117,7 @@ vec3 fresnelSchlick(vec3 R0, vec3 V, vec3 H)
 }
 ```
 
-对于`Schlick's approximation`，$R_0$项通常需要我们自己取，对绝缘体来说$R_0$可以取0.04，对导体而言$R_0$可以去取0.92。
+对于`Schlick's approximation`，$R_0$项通常需要我们自己取，对绝缘体来说$R_0$可以取0.04，对导体而言$R_0$可以取0.92。
 
 总结，菲涅尔项的`Schlick's approximation`取决于**光线发射的介质与穿过的介质**以及**观察向量与平面法向量**的夹角。
 
