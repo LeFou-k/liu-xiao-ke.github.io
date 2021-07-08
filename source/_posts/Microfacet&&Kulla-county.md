@@ -67,10 +67,10 @@ $$
 
 ![Micro v.s. marco surface](https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210708104047492.png)
 
-在Macrosurface中，我们会使用microfacet分布函数$D$，shadowing-masking函数$G$，再加上Fresnel term$F$共同构成Microfacet BRDF，如下：
+在Macrosurface中，我们会使用microfacet分布函数$D$，shadowing-masking函数$G$，再加上Fresnel term$F$共同构成Microfacet BRDF，利用Macroface以及这三个参数足以描述Microface模型，如下：
 $$
 \begin{equation}
-f(i,o)=\frac{F(i,h)G(i,o,h)D(h)}{4(n,i)(n,o)} \label{2}
+f(\boldsymbol{i},\boldsymbol{o})=\frac{F(\boldsymbol{i},\boldsymbol{h})G(\boldsymbol{i},\boldsymbol{o},\boldsymbol{h})D(\boldsymbol{h})}{4(\boldsymbol{n},\boldsymbol{i})(\boldsymbol{n},\boldsymbol{o})} \label{2}
 \end{equation}
 $$
 
@@ -139,6 +139,91 @@ vec3 fresnelSchlick(vec3 R0, vec3 V, vec3 H)
 
 
 ### Normal Distribution Function
+
+法向量分布函数（Normal Distribution Function）简称NDF，注意与正态分布无关，但呈现形态类似正态分布，描述了微观几何平面上的法线分布的统计概率，是决定Microfacet Model呈现效果的关键。
+
+NDF存在多种模型，大多与正态分布形态相近，呈现类似高斯分布的“中间高、两头低”的形态。从图形学角度来理解，无论微表面如何划分，其总体仍是围绕Macroface的法向量（后面皆称为$N$）分布的，且理论上和$N$偏离角度越大则分布越稀少。
+
+NDF具有一些共同性质，首先给定积分域表面微元$dA$，需满足如下积分情况：
+$$
+\begin{equation}
+\int_{\mathrm{H}^{2}(\mathbf{n})} D\left(\omega_{\mathrm{h}}\right) \mathrm{dA}=1\label{8}
+\end{equation}
+$$
+
+接着由立体角和投影立体角之间的关系$\mathrm{dA}=\mathrm{d} \omega_\mathrm{h}\cos{\theta_\mathrm{h}}$进一步可将其转化为：
+
+$$
+\begin{equation}
+\int_{\mathrm{H}^{2}(\mathbf{n})} D\left(\omega_{\mathrm{h}}\right) \cos \theta_{\mathrm{h}} \mathrm{d} \omega_{\mathrm{h}}=1 \label{9}
+\end{equation}
+$$
+
+因此所有无论如何定义的$\mathrm{D(\omega_\mathrm{h})}$均应该满足$\eqref{9}$式的要求，即`Normalize`（归一化），后续主要通过`Beckmann NDF`以及`GGX NDF`两者之间的对比来看NDF的具体形式如何。
+
+其次，NDF一般为`roughness`$\alpha$和半程向量与$N$之间的夹角$\theta$两者的函数，且函数大体与高斯分布形式类似。
+
+
+
+#### Beckmann NDF
+
+`Beckmann NDF`的计算公式如下，$\alpha$为物体表面粗糙系数，$\mathrm{\theta_{\mathrm{h}}}$为$h$与$N$之间的夹角。
+$$
+\begin{equation}
+D(h)=\frac{e^{-\frac{\tan ^{2} \theta_{h}}{\alpha^{2}}}}{\pi \alpha^{2} \cos ^{4} \theta_{h}} \label{10}
+\end{equation}
+$$
+
+#### GGX NDF
+
+`GGX NDF`的计算公式如下：
+$$
+\begin{equation}
+D_{G G X}(\boldsymbol{h})=\frac{\alpha^{2}}{\pi\left((\boldsymbol{n} \cdot \boldsymbol{h})^{2}\left(\left(\alpha^{2}-1\right)+1\right)\right)^{2}} \label{11}
+\end{equation}
+$$
+
+
+其中$\alpha=roughness^2$
+
+GGX相比于Backmann的一个显著特征是拥有更加长的“尾巴”，此外，可将GGX进一步推广为GTR，在此不过多赘述，详见[GAMES202 lecture10](https://sites.cs.ucsb.edu/~lingqi/teaching/resources/GAMES202_Lecture_10.pdf)。
+
+以`GGX NDF`为例，实现代码如下所示：
+
+```glsl
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+
+    float nom = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+    return nom / max(denom, 0.0001);
+}
+```
+
+需要注意的是，上述实现过程中多次使用max与0.0001比较，这是因为$D(h)>0$恒成立，即无论$h$与$N$的偏离角度多大，都理论上存在相应的微表面，符合实际，使用max避免返回负值导致结果失去物理意义。
+
+
+
+#### Comparison
+
+![Beckmann(red),Phong(blue),GGX(green) distribution functions](https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/20210708180459.png)
+
+
+
+对比来看，GGX最显著的特点即“longer tail”，表现在实际中即高光的过渡效果会更好，看起来更符合实际，如下图：
+
+
+
+<img src="https://planetside.co.uk/wp-content/uploads/2020/11/specmodels_v2_Conductive_FrontLit_Socials-450x267.jpg" alt="Specular roughness models on conductor surface." style="zoom:150%;" />
+
+
+
+### Shadow-masking function
 
 
 
