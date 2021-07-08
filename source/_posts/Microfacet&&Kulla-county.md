@@ -49,7 +49,9 @@ PBR(Physically Based Rendering)即一组基于物理原理、尽可能匹配真�
 
 将表面划分的足够细后，如何区分不同粗糙程度的表面呢？显而易见的是，根据表面的粗糙系数可构建Microfacet模型，即越粗糙理论上微表面应该越多且越“坑坑洼洼”，那么进一步“坑坑洼洼”如何体现呢？如果把每个微表面看作镜面，那么法向量可以确定这个镜面，粗略估计下来，越粗糙的平面意味着这些法向量的分布越不集中，反之则越集中。这些法向量同样也是每个微表面上的入射光线和出射光线的`halfway vector`，定义为$h$，$h$的具体计算方式如下：
 $$
+\begin{equation}
 h = \frac{l+v}{||l+v||} \label{1}
+\end{equation}
 $$
 
 下图是`roughness`从0.1递增至1.0的中间结果：
@@ -99,13 +101,17 @@ $$
 
 
 $$
-R(\theta)=R_{0}+\left(1-R_{0}\right)(1-\cos \theta)^{5}\label{6}
+\begin{equation}
+	R(\theta)=R_{0}+\left(1-R_{0}\right)(1-\cos \theta)^{5} \label{6}
+\end{equation}
 $$
 
 
 
 $$
-R_0=\left(\frac{n_1-n_2}{n_1+n_2}\right)^{2}\label{7}
+\begin{equation}
+	R_0=\left(\frac{n_1-n_2}{n_1+n_2}\right)^{2} \label{7}
+\end{equation}
 $$
 
 如此代码的实现就非常简单了，由公式$\eqref{6}$和$\eqref{7}$可轻松得到，这里以`glsl`为例：
