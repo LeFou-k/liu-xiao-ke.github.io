@@ -50,7 +50,7 @@ PBR(Physically Based Rendering)即一组基于物理原理、尽可能匹配真�
 将表面划分的足够细后，如何区分不同粗糙程度的表面呢？显而易见的是，根据表面的粗糙系数可构建Microfacet模型，即越粗糙理论上微表面应该越多且越“坑坑洼洼”，那么进一步“坑坑洼洼”如何体现呢？如果把每个微表面看作镜面，那么法向量可以确定这个镜面，粗略估计下来，越粗糙的平面意味着这些法向量的分布越不集中，反之则越集中。这些法向量同样也是每个微表面上的入射光线和出射光线的`halfway vector`，定义为$h$，$h$的具体计算方式如下：
 $$
 \begin{equation}
-h = \frac{l+v}{||l+v||} 
+h = \frac{l+v}{||l+v||} \label{1}
 \end{equation}
 $$
 
@@ -69,7 +69,9 @@ $$
 
 在Macrosurface中，我们会使用microfacet分布函数$D$，shadowing-masking函数$G$，再加上Fresnel term$F$共同构成Microfacet BRDF，如下：
 $$
-f(i,o)=\frac{F(i,h)G(i,o,h)D(h)}{4(n,i)(n,o)}
+\begin{equation}
+f(i,o)=\frac{F(i,h)G(i,o,h)D(h)}{4(n,i)(n,o)} \label{2}
+\end{equation}
 $$
 
 
@@ -83,17 +85,23 @@ $$
 
 菲涅尔项的计算公式是十分复杂的：
 $$
-R_{\mathrm{s}}=\left|\frac{n_{1} \cos \theta_{\mathrm{i}}-n_{2} \cos \theta_{\mathrm{t}}}{n_{1} \cos \theta_{\mathrm{i}}+n_{2} \cos \theta_{\mathrm{t}}}\right|^{2}=\left|\frac{n_{1} \cos \theta_{\mathrm{i}}-n_{2} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}}{n_{1} \cos \theta_{\mathrm{i}}+n_{2} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}}\right|^{2} 
+\begin{equation}
+R_{\mathrm{s}}=\left|\frac{n_{1} \cos \theta_{\mathrm{i}}-n_{2} \cos \theta_{\mathrm{t}}}{n_{1} \cos \theta_{\mathrm{i}}+n_{2} \cos \theta_{\mathrm{t}}}\right|^{2}=\left|\frac{n_{1} \cos \theta_{\mathrm{i}}-n_{2} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}}{n_{1} \cos \theta_{\mathrm{i}}+n_{2} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}}\right|^{2} \label{3}
+\end{equation}
 $$
 
 $$
-R_{\mathrm{p}}=\left|\frac{n_{1} \cos \theta_{\mathrm{t}}-n_{2} \cos \theta_{\mathrm{i}}}{n_{1} \cos \theta_{\mathrm{t}}+n_{2} \cos \theta_{\mathrm{i}}}\right|^{2}=\left|\frac{n_{1} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}-n_{2} \cos \theta_{\mathrm{i}}}}{n_{1} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}+n_{2} \cos \theta_{\mathrm{i}}}\right| 
+\begin{equation}
+R_{\mathrm{p}}=\left|\frac{n_{1} \cos \theta_{\mathrm{t}}-n_{2} \cos \theta_{\mathrm{i}}}{n_{1} \cos \theta_{\mathrm{t}}+n_{2} \cos \theta_{\mathrm{i}}}\right|^{2}=\left|\frac{n_{1} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}-n_{2} \cos \theta_{\mathrm{i}}}}{n_{1} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}+n_{2} \cos \theta_{\mathrm{i}}}\right| \label{4}
+\end{equation}
 $$
 
 反射比是两者的算术平均值：
 
 $$
+\begin{equation}
 R_{\mathrm{eff}}=\frac{1}{2}\left(R_{\mathrm{s}}+R_{\mathrm{p}}\right) \label{5}
+\end{equation}
 $$
 
 
@@ -102,18 +110,18 @@ $$
 
 $$
 \begin{equation}
-	R(\theta)=R_{0}+\left(1-R_{0}\right)(1-\cos \theta)^{5} 
+	R(\theta)=R_{0}+\left(1-R_{0}\right)(1-\cos \theta)^{5} \label{6}
 \end{equation}
 $$
 
 
 $$
 \begin{equation}
-	R_0=\left(\frac{n_1-n_2}{n_1+n_2}\right)^{2} 
+	R_0=\left(\frac{n_1-n_2}{n_1+n_2}\right)^{2} \label{7}
 \end{equation}
 $$
 
-如此代码的实现就非常简单了，这里以`glsl`为例：
+如此代码的实现就非常简单了，由公式$\eqref{6}$和$\eqref{7}$这里以`glsl`为例：
 
 ```glsl
 vec3 fresnelSchlick(vec3 R0, vec3 V, vec3 H)
@@ -121,6 +129,7 @@ vec3 fresnelSchlick(vec3 R0, vec3 V, vec3 H)
     return R0 + (1.0 - R0) * pow((1.0 - max(0.0001, dot(V, H))), 5.0);
 }
 ```
+
 
 对于`Schlick's approximation`，$R_0$项通常需要我们自己取，对绝缘体来说$R_0$可以取0.04，对导体而言$R_0$可以取0.92。
 
