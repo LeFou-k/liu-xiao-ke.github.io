@@ -74,8 +74,9 @@ f(i,o)=\frac{F(i,h)G(i,o,h)D(h)}{4(n,i)(n,o)} \label{2}
 \end{equation}
 $$
 
-
 下面分别介绍$F$，$G$，$D$
+
+
 
 ### Fresnel term
 
@@ -136,6 +137,8 @@ vec3 fresnelSchlick(vec3 R0, vec3 V, vec3 H)
 总结，菲涅尔项的`Schlick's approximation`取决于**光线发射的介质与穿过的介质**以及**观察向量与平面法向量**的夹角。
 
 
+
+### Normal Distribution Function
 
 
 
