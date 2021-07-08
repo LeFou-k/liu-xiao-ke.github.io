@@ -34,8 +34,8 @@
 <meta property="og:image" content="https://learnopengl.com/img/pbr/ndf.png">
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210708104047492.png">
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210708112109987.png">
-<meta property="article:published_time" content="2021-07-08T04:04:45.632Z">
-<meta property="article:modified_time" content="2021-07-08T04:04:45.632Z">
+<meta property="article:published_time" content="2021-07-08T05:18:36.009Z">
+<meta property="article:modified_time" content="2021-07-08T05:18:36.009Z">
 <meta property="article:author" content="Liu Ke">
 <meta property="article:tag" content="RTR">
 <meta property="article:tag" content="PBR">
@@ -198,7 +198,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-07-08 12:04:45" itemprop="dateCreated datePublished" datetime="2021-07-08T12:04:45+08:00">2021-07-08</time>
+              <time title="创建时间：2021-07-08 13:18:36" itemprop="dateCreated datePublished" datetime="2021-07-08T13:18:36+08:00">2021-07-08</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -254,7 +254,9 @@
 <p>然而Microfacet Model通常被认为是对物理世界物体表面的完美模拟，Microfacet Model认为物体表面是由很多Microfacet（微表面）集合构成的，在这些Microfacet上服从<strong>镜面反射</strong>原理。根据微元法的思想，在足够小的Microfacet上使用镜面反射原理去计算，那么累加起来后的结果也会足够接近真实结果，因此我们可以认为Microfacet Model是一种相对准确的模型。</p>
 <p><img src="https://learnopengl.com/img/pbr/microfacets_light_rays.png" alt="Microfacet surface" /></p>
 <p>将表面划分的足够细后，如何区分不同粗糙程度的表面呢？显而易见的是，根据表面的粗糙系数可构建Microfacet模型，即越粗糙理论上微表面应该越多且越“坑坑洼洼”，那么进一步“坑坑洼洼”如何体现呢？如果把每个微表面看作镜面，那么法向量可以确定这个镜面，粗略估计下来，越粗糙的平面意味着这些法向量的分布越不集中，反之则越集中。这些法向量同样也是每个微表面上的入射光线和出射光线的<code>halfway vector</code>，定义为<span class="math inline">\(h\)</span>，<span class="math inline">\(h\)</span>的具体计算方式如下： <span class="math display">\[
-h = \frac{l+v}{||l+v||} \label{1}
+\begin{equation}
+h = \frac{l+v}{||l+v||} 
+\end{equation}
 \]</span></p>
 <p>下图是<code>roughness</code>从0.1递增至1.0的中间结果：</p>
 <p><img src="https://learnopengl.com/img/pbr/ndf.png" alt="Visualized NDF (Normalized Distribution Function)" /></p>
@@ -262,30 +264,34 @@ h = \frac{l+v}{||l+v||} \label{1}
 <p>实际上，对于Microfacet模型，我们几乎不会将之视为很多表面来具体计算，一方面这些Microfacet过小以至于我们很难观察到它的细节，另一方面过多的Microfacet会大大增加计算量，实际使用中常常使用Macrosurface来代替Microsurface，见下图：</p>
 <p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210708104047492.png" alt="Micro v.s. marco surface" /></p>
 <p>在Macrosurface中，我们会使用microfacet分布函数<span class="math inline">\(D\)</span>，shadowing-masking函数<span class="math inline">\(G\)</span>，再加上Fresnel term<span class="math inline">\(F\)</span>共同构成Microfacet BRDF，如下： <span class="math display">\[
-f(i,o)=\frac{F(i,h)G(i,o,h)D(h)}{4(n,i)(n,o)}\label{2}
+f(i,o)=\frac{F(i,h)G(i,o,h)D(h)}{4(n,i)(n,o)}
 \]</span></p>
 <p>下面分别介绍<span class="math inline">\(F\)</span>，<span class="math inline">\(G\)</span>，<span class="math inline">\(D\)</span></p>
 <h3 id="fresnel-term">Fresnel term</h3>
 <p>菲涅尔项（Fresnel term）描述了不同观察角度的表面反射情况，以下图为例，<strong>观察角度（和平面法线夹角）越大</strong>，木板地面的反射就越清晰（和光的偏振有关）。</p>
 <p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210708112109987.png" alt="Reflectance increase with gazing angle" /></p>
 <p>菲涅尔项的计算公式是十分复杂的： <span class="math display">\[
-R_{\mathrm{s}}=\left|\frac{n_{1} \cos \theta_{\mathrm{i}}-n_{2} \cos \theta_{\mathrm{t}}}{n_{1} \cos \theta_{\mathrm{i}}+n_{2} \cos \theta_{\mathrm{t}}}\right|^{2}=\left|\frac{n_{1} \cos \theta_{\mathrm{i}}-n_{2} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}}{n_{1} \cos \theta_{\mathrm{i}}+n_{2} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}}\right|^{2}
+R_{\mathrm{s}}=\left|\frac{n_{1} \cos \theta_{\mathrm{i}}-n_{2} \cos \theta_{\mathrm{t}}}{n_{1} \cos \theta_{\mathrm{i}}+n_{2} \cos \theta_{\mathrm{t}}}\right|^{2}=\left|\frac{n_{1} \cos \theta_{\mathrm{i}}-n_{2} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}}{n_{1} \cos \theta_{\mathrm{i}}+n_{2} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}}\right|^{2} 
 \]</span></p>
 <p><span class="math display">\[
-R_{\mathrm{p}}=\left|\frac{n_{1} \cos \theta_{\mathrm{t}}-n_{2} \cos \theta_{\mathrm{i}}}{n_{1} \cos \theta_{\mathrm{t}}+n_{2} \cos \theta_{\mathrm{i}}}\right|^{2}=\left|\frac{n_{1} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}-n_{2} \cos \theta_{\mathrm{i}}}}{n_{1} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}+n_{2} \cos \theta_{\mathrm{i}}}\right|
+R_{\mathrm{p}}=\left|\frac{n_{1} \cos \theta_{\mathrm{t}}-n_{2} \cos \theta_{\mathrm{i}}}{n_{1} \cos \theta_{\mathrm{t}}+n_{2} \cos \theta_{\mathrm{i}}}\right|^{2}=\left|\frac{n_{1} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}-n_{2} \cos \theta_{\mathrm{i}}}}{n_{1} \sqrt{1-\left(\frac{n_{1}}{n_{2}} \sin \theta_{\mathrm{i}}\right)^{2}}+n_{2} \cos \theta_{\mathrm{i}}}\right| 
 \]</span></p>
 <p>反射比是两者的算术平均值：</p>
 <p><span class="math display">\[
-R_{\mathrm{eff}}=\frac{1}{2}\left(R_{\mathrm{s}}+R_{\mathrm{p}}\right)
+R_{\mathrm{eff}}=\frac{1}{2}\left(R_{\mathrm{s}}+R_{\mathrm{p}}\right) \label{5}
 \]</span></p>
 <p>通常情况下我们采用<code>Schlick's approximation</code>对菲涅尔项进行估计，即光从折射率为<span class="math inline">\(n_1\)</span>的介质向另一种折射率为<span class="math inline">\(n_2\)</span>的介质传播时，菲涅尔项有：</p>
 <p><span class="math display">\[
-R(\theta)=R_{0}+\left(1-R_{0}\right)(1-\cos \theta)^{5}\label{6}
+\begin{equation}
+    R(\theta)=R_{0}+\left(1-R_{0}\right)(1-\cos \theta)^{5} 
+\end{equation}
 \]</span></p>
 <p><span class="math display">\[
-R_0=\left(\frac{n_1-n_2}{n_1+n_2}\right)^{2}\label{7}
+\begin{equation}
+    R_0=\left(\frac{n_1-n_2}{n_1+n_2}\right)^{2} 
+\end{equation}
 \]</span></p>
-<p>如此代码的实现就非常简单了，由公式<span class="math inline">\(\eqref{6}\)</span>和<span class="math inline">\(\eqref{7}\)</span>可轻松得到，这里以<code>glsl</code>为例：</p>
+<p>如此代码的实现就非常简单了，这里以<code>glsl</code>为例：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">vec3</span> fresnelSchlick(<span class="type">vec3</span> R0, <span class="type">vec3</span> V, <span class="type">vec3</span> H)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> R0 + (<span class="number">1.0</span> - R0) * <span class="built_in">pow</span>((<span class="number">1.0</span> - <span class="built_in">max</span>(<span class="number">0.0001</span>, <span class="built_in">dot</span>(V, H))), <span class="number">5.0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>对于<code>Schlick's approximation</code>，<span class="math inline">\(R_0\)</span>项通常需要我们自己取，对绝缘体来说<span class="math inline">\(R_0\)</span>可以取0.04，对导体而言<span class="math inline">\(R_0\)</span>可以取0.92。</p>
 <p>总结，菲涅尔项的<code>Schlick's approximation</code>取决于<strong>光线发射的介质与穿过的介质</strong>以及<strong>观察向量与平面法向量</strong>的夹角。</p>
@@ -464,7 +470,7 @@ R_0=\left(\frac{n_1-n_2}{n_1+n_2}\right)^{2}\label{7}
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">7 分钟</span>
+    <span title="站点阅读时长">8 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
