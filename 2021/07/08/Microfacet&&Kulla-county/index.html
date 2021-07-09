@@ -36,8 +36,9 @@
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/image-20210708112109987.png">
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/20210708180459.png">
 <meta property="og:image" content="https://planetside.co.uk/wp-content/uploads/2020/11/specmodels_v2_Conductive_FrontLit_Socials-450x267.jpg">
-<meta property="article:published_time" content="2021-07-08T15:10:25.601Z">
-<meta property="article:modified_time" content="2021-07-08T15:10:25.601Z">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/20210709114819.png">
+<meta property="article:published_time" content="2021-07-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-07-08T16:00:00.000Z">
 <meta property="article:author" content="Liu Ke">
 <meta property="article:tag" content="RTR">
 <meta property="article:tag" content="PBR">
@@ -200,8 +201,15 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-07-08 23:10:25" itemprop="dateCreated datePublished" datetime="2021-07-08T23:10:25+08:00">2021-07-08</time>
+              <time title="创建时间：2021-07-08 00:00:00" itemprop="dateCreated datePublished" datetime="2021-07-08T00:00:00+08:00">2021-07-08</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-07-09 00:00:00" itemprop="dateModified" datetime="2021-07-09T00:00:00+08:00">2021-07-09</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -218,14 +226,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>5.2k</span>
+              <span>7.2k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>5 分钟</span>
+              <span>7 分钟</span>
             </span>
 
         </div>
@@ -339,10 +347,53 @@ D_{G G X}(\boldsymbol{h})=\frac{\alpha^{2}}{\pi\left((\boldsymbol{n} \cdot \bold
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">float</span> DistributionGGX(<span class="type">vec3</span> N, <span class="type">vec3</span> H, <span class="type">float</span> roughness)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">float</span> a = roughness * roughness;</span><br><span class="line">    <span class="type">float</span> a2 = a * a;</span><br><span class="line">    <span class="type">float</span> NdotH = <span class="built_in">max</span>(<span class="built_in">dot</span>(N, H), <span class="number">0.0</span>);</span><br><span class="line">    <span class="type">float</span> NdotH2 = NdotH * NdotH;</span><br><span class="line"></span><br><span class="line">    <span class="type">float</span> nom = a2;</span><br><span class="line">    <span class="type">float</span> denom = (NdotH2 * (a2 - <span class="number">1.0</span>) + <span class="number">1.0</span>);</span><br><span class="line">    denom = PI * denom * denom;</span><br><span class="line">    <span class="keyword">return</span> nom / <span class="built_in">max</span>(denom, <span class="number">0.0001</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>需要注意的是，上述实现过程中多次使用max与0.0001比较，这是因为<span class="math inline">\(D(h)&gt;0\)</span>恒成立，即无论<span class="math inline">\(h\)</span>与<span class="math inline">\(N\)</span>的偏离角度多大，都理论上存在相应的微表面，符合实际，使用max避免返回负值导致结果失去物理意义。</p>
 <h4 id="comparison">Comparison</h4>
+<p>比对<code>Beckmann NDF</code>和<code>GGX NDF</code>如下图所示：</p>
 <p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/20210708180459.png" alt="Beckmann(red), Phong(blue), GGX(green) distribution functions" /></p>
-<p>对比来看，GGX最显著的特点即“longer tail”，表现在实际中即高光的过渡效果会更好，看起来更符合实际，如下图：</p>
+<p>对比来看，GGX最显著的特点即“longer tail”，表现在实际中即高光的过渡效果会更好，看起来更符合实际：</p>
 <p><img src="https://planetside.co.uk/wp-content/uploads/2020/11/specmodels_v2_Conductive_FrontLit_Socials-450x267.jpg" alt="Specular roughness models on conductor surface." style="zoom:150%;" /></p>
 <h3 id="shadow-masking-function">Shadow-masking function</h3>
+<p>可以清楚的发现，公式<span class="math inline">\(\eqref{2}\)</span>中的BRDF分母项为<span class="math inline">\((\boldsymbol{n},\boldsymbol{i})(\boldsymbol{n},\boldsymbol{o})\)</span>，当camera与shading point向量与<span class="math inline">\(N\)</span>呈90度夹角时，即<span class="math inline">\((\boldsymbol{n},\boldsymbol{i})\to0\)</span>，此时会导致BRDF无限大，会渲染出来一条“白边”，为避免这种现象从而引入了shadow-masking function <span class="math inline">\(G\)</span>.</p>
+<p>常有的shadow-masking function为Smith模型： <span class="math display">\[
+\begin{equation}
+G_{S m i t h}(\boldsymbol{i}, \boldsymbol{o}, \boldsymbol{h})=G_{\text {Schlick }}(\boldsymbol{l}, \boldsymbol{h}) G_{\text {Schlick }}(\boldsymbol{v}, \boldsymbol{h}) \label{12}
+\end{equation}
+\]</span></p>
+<p><span class="math display">\[
+\begin{equation}
+G_{S c h l i c k}(\boldsymbol{v}, \boldsymbol{n})=\frac{\boldsymbol{n} \cdot \boldsymbol{v}}{\boldsymbol{n} \cdot \boldsymbol{v}(1-k)+k} \label{13}
+\end{equation}
+\]</span></p>
+<p>其中<span class="math inline">\(k=\frac{(roughness+1)^2}{8}\)</span></p>
+<p>实现方式如下：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">float</span> GeometrySchlickGGX(<span class="type">float</span> NdotV, <span class="type">float</span> roughness) &#123;</span><br><span class="line">    <span class="type">float</span> a = roughness;</span><br><span class="line">    <span class="type">float</span> k = (a + <span class="number">1</span>)*(a + <span class="number">1</span>) / <span class="number">8</span>;</span><br><span class="line">    <span class="type">float</span> nom = NdotV;</span><br><span class="line">    <span class="type">float</span> denom = NdotV * (<span class="number">1.0</span>f - k) + k;</span><br><span class="line">    <span class="keyword">return</span> nom / denom;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">float</span> GeometrySmith(<span class="type">float</span> roughness, <span class="type">float</span> NoV, <span class="type">float</span> NoL) &#123;</span><br><span class="line">    <span class="type">float</span> ggx2 = GeometrySchlickGGX(NoV, roughness);</span><br><span class="line">    <span class="type">float</span> ggx1 = GeometrySchlickGGX(NoL, roughness);</span><br><span class="line">    <span class="keyword">return</span> ggx1 * ggx2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>至此，Microfacet BRDF已经完成的介绍完，正常情况下能够得到如下的渲染结果：</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/20210709114819.png" alt="Microfacet(roughness from 0 to 1)[SIGGRAPH2017]" /></p>
+<h2 id="kulla-conty-approximation">Kulla-Conty Approximation</h2>
+<p>在上图的渲染结果中，虽然roughness依次递增，然而直观上来看不应该由亮变暗，从数学上来看，假设入射光<span class="math inline">\(L_0=1\)</span>有：</p>
+<p><span class="math display">\[
+\begin{equation}
+E\left(\mu_{0}\right)=\int_{0}^{2 \pi} \int_{0}^{1} f\left(\mu_{0}, \mu_{i}, \phi\right) \mu_{i} d \mu_{i} d \phi \label{14}
+\end{equation}
+\]</span></p>
+<p>根据能量守恒定律，如果Microfacet surface满足镜面反射的话，那么理论上<span class="math inline">\(E(\mu_0)=1\)</span>成立，然而事实上并非如此。</p>
+<p>因此基本思想是如何弥补这块损失的能量<span class="math inline">\(1-E(\mu_0)\)</span>，<code>Kulla-Conty Approximation</code>提出在已有Microfacet BRDF的基础上加上一个能量损失BRDF<span class="math inline">\(f_{ms}\)</span>，一般情况下的<span class="math inline">\(f_{ms}\)</span>形式为：</p>
+<p><span class="math display">\[
+\begin{equation}
+f_{ms}=c(1-E(\mu_i))(1-E(\mu_0)) \label{15}
+\end{equation}
+\]</span></p>
+<p>需要满足： <span class="math display">\[
+\begin{equation}
+ E\left(\mu_{ms}\right)=\int_{0}^{2 \pi} \int_{0}^{1} f_{ms}\left(\mu_{0}, \mu_{i}, \phi\right) \mu_{i} d \mu_{i} d \phi = 1-E(\mu_0) \label{16}
+\end{equation}
+\]</span></p>
+<p>联立方程<span class="math inline">\(\eqref{15}\)</span><span class="math inline">\(\eqref{16}\)</span>解得：</p>
+<p><span class="math display">\[
+\begin{equation}
+f_{ms}=\frac{(1-E(\mu_i))(1-E(\mu_0))}{\pi(1-E_{avg})} \label{17}
+\end{equation}
+\]</span></p>
+<p>其中，<span class="math inline">\(E_{avg}=2\int_{0}^{1}E(\mu)\mu d\mu\)</span></p>
 <h2 id="参考资料">参考资料</h2>
 <div id="footnotes">
 <hr>
@@ -378,11 +429,11 @@ D_{G G X}(\boldsymbol{h})=\frac{\alpha^{2}}{\pi\left((\boldsymbol{n} \cdot \bold
 
         
     <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2021/07/08/travis-CI+Hexo+Next-latex%E6%B8%B2%E6%9F%93/" rel="prev" title="Hexo+Next主题+Travis CI搭建过程">
-      <i class="fa fa-chevron-left"></i> Hexo+Next主题+Travis CI搭建过程
-    </a></div>
       <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/09/%E7%AC%AC%E4%B8%80%E7%AF%87/" rel="next" title="第一篇">
+      第一篇 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -441,7 +492,7 @@ D_{G G X}(\boldsymbol{h})=\frac{\alpha^{2}}{\pi\left((\boldsymbol{n} \cdot \bold
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#pbr"><span class="nav-number">1.</span> <span class="nav-text">PBR</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#microfacet-model"><span class="nav-number">2.</span> <span class="nav-text">Microfacet Model</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#microfaect-brdf"><span class="nav-number">2.1.</span> <span class="nav-text">Microfaect BRDF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fresnel-term"><span class="nav-number">2.2.</span> <span class="nav-text">Fresnel term</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#normal-distribution-function"><span class="nav-number">2.3.</span> <span class="nav-text">Normal Distribution Function</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#beckmann-ndf"><span class="nav-number">2.3.1.</span> <span class="nav-text">Beckmann NDF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ggx-ndf"><span class="nav-number">2.3.2.</span> <span class="nav-text">GGX NDF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#comparison"><span class="nav-number">2.3.3.</span> <span class="nav-text">Comparison</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shadow-masking-function"><span class="nav-number">2.4.</span> <span class="nav-text">Shadow-masking function</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#pbr"><span class="nav-number">1.</span> <span class="nav-text">PBR</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#microfacet-model"><span class="nav-number">2.</span> <span class="nav-text">Microfacet Model</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#microfaect-brdf"><span class="nav-number">2.1.</span> <span class="nav-text">Microfaect BRDF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fresnel-term"><span class="nav-number">2.2.</span> <span class="nav-text">Fresnel term</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#normal-distribution-function"><span class="nav-number">2.3.</span> <span class="nav-text">Normal Distribution Function</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#beckmann-ndf"><span class="nav-number">2.3.1.</span> <span class="nav-text">Beckmann NDF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ggx-ndf"><span class="nav-number">2.3.2.</span> <span class="nav-text">GGX NDF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#comparison"><span class="nav-number">2.3.3.</span> <span class="nav-text">Comparison</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shadow-masking-function"><span class="nav-number">2.4.</span> <span class="nav-text">Shadow-masking function</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kulla-conty-approximation"><span class="nav-number">3.</span> <span class="nav-text">Kulla-Conty Approximation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -512,13 +563,13 @@ D_{G G X}(\boldsymbol{h})=\frac{\alpha^{2}}{\pi\left((\boldsymbol{n} \cdot \bold
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">11k</span>
+    <span title="站点总字数">13k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">10 分钟</span>
+    <span title="站点阅读时长">11 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
