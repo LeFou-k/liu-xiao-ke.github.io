@@ -5,6 +5,8 @@ tags:
   - Hexo
   - latex
 mathjax: true
+date: 2021/5/9
+update: 2021/7/8
 ---
 
 翻阅网络上诸多博客，很难找到一篇完整的hexo next主题支持latex渲染并配置travis CI自动化工具可用的文章，因此发布这篇博客记录下我的配置过程。主要采用Pandoc+MathJax渲染引擎对latex进行渲染。
