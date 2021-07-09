@@ -4,6 +4,8 @@ categories: 渲染
 tags:
   - RTR
   - PBR
+date: 2021/7/8
+updated: 2021/7/9
 mathjax: true
 ---
 
@@ -211,13 +213,13 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 
 #### Comparison
 
+比对`Beckmann NDF`和`GGX NDF`如下图所示：
+
 ![Beckmann(red), Phong(blue), GGX(green) distribution functions](https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/20210708180459.png)
 
 
 
-对比来看，GGX最显著的特点即“longer tail”，表现在实际中即高光的过渡效果会更好，看起来更符合实际，如下图：
-
-
+对比来看，GGX最显著的特点即“longer tail”，表现在实际中即高光的过渡效果会更好，看起来更符合实际：
 
 <img src="https://planetside.co.uk/wp-content/uploads/2020/11/specmodels_v2_Conductive_FrontLit_Socials-450x267.jpg" alt="Specular roughness models on conductor surface." style="zoom:150%;" />
 
@@ -225,9 +227,86 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 
 ### Shadow-masking function
 
+可以清楚的发现，公式$\eqref{2}$中的BRDF分母项为$(\boldsymbol{n},\boldsymbol{i})(\boldsymbol{n},\boldsymbol{o})$，当camera与shading point向量与$N$呈90度夹角时，即$(\boldsymbol{n},\boldsymbol{i})\to0$，此时会导致BRDF无限大，会渲染出来一条“白边”，为避免这种现象从而引入了shadow-masking function $G$.
+
+常有的shadow-masking function为Smith模型：
+$$
+\begin{equation}
+G_{S m i t h}(\boldsymbol{i}, \boldsymbol{o}, \boldsymbol{h})=G_{\text {Schlick }}(\boldsymbol{l}, \boldsymbol{h}) G_{\text {Schlick }}(\boldsymbol{v}, \boldsymbol{h}) \label{12}
+\end{equation}
+$$
+
+
+$$
+\begin{equation}
+G_{S c h l i c k}(\boldsymbol{v}, \boldsymbol{n})=\frac{\boldsymbol{n} \cdot \boldsymbol{v}}{\boldsymbol{n} \cdot \boldsymbol{v}(1-k)+k} \label{13}
+\end{equation}
+$$
+
+其中$k=\frac{(roughness+1)^2}{8}$
+
+实现方式如下：
+
+```glsl
+float GeometrySchlickGGX(float NdotV, float roughness) {
+    float a = roughness;
+    float k = (a + 1)*(a + 1) / 8;
+    float nom = NdotV;
+    float denom = NdotV * (1.0f - k) + k;
+    return nom / denom;
+}
+
+float GeometrySmith(float roughness, float NoV, float NoL) {
+    float ggx2 = GeometrySchlickGGX(NoV, roughness);
+    float ggx1 = GeometrySchlickGGX(NoL, roughness);
+    return ggx1 * ggx2;
+}
+```
 
 
 
+至此，Microfacet BRDF已经完成的介绍完，正常情况下能够得到如下的渲染结果：
+
+![Microfacet(roughness from 0 to 1)[SIGGRAPH2017]](https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/20210709114819.png)
+
+
+
+## Kulla-Conty Approximation
+
+在上图的渲染结果中，虽然roughness依次递增，然而直观上来看不应该由亮变暗，从数学上来看，假设入射光$L_0=1$有：
+
+$$
+\begin{equation}
+E\left(\mu_{0}\right)=\int_{0}^{2 \pi} \int_{0}^{1} f\left(\mu_{0}, \mu_{i}, \phi\right) \mu_{i} d \mu_{i} d \phi \label{14}
+\end{equation}
+$$
+
+根据能量守恒定律，如果Microfacet surface满足镜面反射的话，那么理论上$E(\mu_0)=1$成立，然而事实上并非如此。
+
+因此基本思想是如何弥补这块损失的能量$1-E(\mu_0)$，`Kulla-Conty Approximation`提出在已有Microfacet BRDF的基础上加上一个能量损失BRDF$f_{ms}$，一般情况下的$f_{ms}$形式为：
+
+$$
+\begin{equation}
+f_{ms}=c(1-E(\mu_i))(1-E(\mu_0)) \label{15}
+\end{equation}
+$$
+
+需要满足：
+$$
+\begin{equation}
+ E\left(\mu_{ms}\right)=\int_{0}^{2 \pi} \int_{0}^{1} f_{ms}\left(\mu_{0}, \mu_{i}, \phi\right) \mu_{i} d \mu_{i} d \phi = 1-E(\mu_0) \label{16}
+\end{equation}
+$$
+
+联立方程$\eqref{15}$$\eqref{16}$解得：
+
+$$
+\begin{equation}
+f_{ms}=\frac{(1-E(\mu_i))(1-E(\mu_0))}{\pi(1-E_{avg})} \label{17}
+\end{equation}
+$$
+
+其中，$E_{avg}=2\int_{0}^{1}E(\mu)\mu d\mu$
 
 
 
