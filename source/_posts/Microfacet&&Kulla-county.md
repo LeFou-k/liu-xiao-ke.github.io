@@ -273,6 +273,8 @@ float GeometrySmith(float roughness, float NoV, float NoL) {
 
 ## Kulla-Conty Approximation
 
+### 原理
+
 在上图的渲染结果中，虽然roughness依次递增，然而直观上来看不应该由亮变暗，从数学上来看，假设入射光$L_0=1$有：
 
 $$
@@ -307,6 +309,205 @@ f_{ms}=\frac{(1-E(\mu_i))(1-E(\mu_0))}{\pi(1-E_{avg})} \label{17}
 $$
 
 其中，$E_{avg}=2\int_{0}^{1}E(\mu)\mu d\mu$
+
+
+
+### 实现方法
+
+在实时渲染中，`Kulla-Conty Approximation`的实现方法主要是利用预计算的方法，这点和`Split-sum`是一样的，根据$\eqref{17}$得知，我们需要在实时渲染过程中知道$E(\mu_{i})$、$E(\mu_{0})$以及$E_{avg}$的值。
+
+实时渲染中的预计算常用方法即“打表”，“打表”需要将表的维数控制在二维及以下。
+
+首先考虑$E(\mu_0)$，根据$E(\mu_0)$的计算方法，$E(\mu_0)$首先是$\mu_0$的函数，其次根据$f_r$的计算方法，$fr$与$\mu_0$、$\mu_1$以及`roughness`相关，由于积分是对$\mu_i$积分，考虑蒙特卡洛积分对光线采样可进一步化简之：
+$$
+\begin{equation}
+E\left(\mu_{0}\right)=\int_{0}^{2 \pi} \int_{0}^{1} f\left(\mu_{0}, \mu_{i}, \phi\right) \mu_{i} d \mu_{i} d \phi=\frac{1}{N} \sum_{i=1}^{N} \frac{f\left(\mu_0,\mu_i,\phi\right)\cos(N,i)}{pdf\left(\mu_i\right)} \label{18}
+\end{equation}
+$$
+
+最终$E(\mu_0)$可以化简为$\mu_0$与$\alpha$的函数，实际上对平面给定$N$，$\mu_0$常常以$N*\mu_0$的方式呈现。对于给定的$N*\mu_0$以及$\alpha$，计算$E(\mu_0)$的代码如下所示：
+
+```c++
+const int resolution = 128;
+uint8_t data[resolution * resolution * 3];
+float step = 1.0 / resolution;
+for (int i = 0; i < resolution; i++) {
+    for (int j = 0; j < resolution; j++) {
+        float roughness = step * (static_cast<float>(i) + 0.5f); //alpha
+        float NdotV = step * (static_cast<float>(j) + 0.5f); //mu_0 also NdotV
+        Vec3f V = Vec3f(std::sqrt(1.f - NdotV * NdotV), 0.f, NdotV);
+        Vec3f irr = IntegrateBRDF(V, roughness, NdotV); //Core function: IntegrateBRDF
+        data[(i * resolution + j) * 3 + 0] = uint8_t(irr.x * 255.0);
+        data[(i * resolution + j) * 3 + 1] = uint8_t(irr.y * 255.0);
+        data[(i * resolution + j) * 3 + 2] = uint8_t(irr.z * 255.0);
+    }
+}
+stbi_flip_vertically_on_write(true); //flip vertically cz of the screen space coordinate
+stbi_write_png("GGX_E_MC_LUT.png", resolution, resolution, 3, data, resolution * 3); //write to png
+```
+
+很容易看出来，核心函数为`IntegrateBRDF`，实现方式如下：
+
+```c++
+typedef struct samplePoints{
+    std::vector<Vec3f> directions;
+    std::vector<float> PDFs;
+}samplePoints;
+
+Vec3f IntegrateBRDF(Vec3f V, float roughness, float NdotV) {
+    Vec3f Li(1.0f, 1.0f, 1.0f);
+    const int sample_count = 1024;
+    const float R0 = pow((1 - 1e-12) / (1 + 1e-12), 2);
+    Vec3f N = Vec3f(0.0, 0.0, 1.0);
+
+    samplePoints sampleList = squareToCosineHemisphere(sample_count); //cosine sampling
+    for (int i = 0; i < sample_count; i++) {
+      Vec3f L = sampleList.directions[i]; //sample light L
+      float pdf = sampleList.PDFs[i]; //corresbonding pdf
+      Vec3f h = normalize(V + L); //half vector: NORMALIZED!!
+      
+      float NdotL = std::max(0.00001f, dot(N, L)); //Every dot need to be larger than zero.
+
+      float F = R0 + (1 - R0) * pow(1 - NdotV, 5); //calculate F
+      float D = DistributionGGX(N, h, roughness);
+      float G = GeometrySmith(roughness, NdotL, NdotV);
+      float brdf = F * D * G / (4 * NdotL * NdotV); //Microfacet BRDF
+      float integration = brdf * NdotL / pdf;
+
+      Li += {integration, integration, integration}; //Only one value
+    }
+    Li = Li / sample_count;
+    return Li;
+}
+```
+
+如此可生成如下结果：
+
+<img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/20210712220557.png" style="zoom:200%;" />
+
+
+
+然而距离[Revisiting Physically Based Shading at Imageworks[SIGGRAPH 2017]](https://fpsunflower.github.io/ckulla/data/s2017_pbs_imageworks_slides_v2.pdf)给的示例存在一定的距离，分析图片可得：图片水平方向上为`roughness`，垂直方向上为`NdotV`，在`roughness`很小时会导致积分的结果存在很多噪点，原因在于，当粗糙度较低时，Microfacet surface的法向量理论上应该接近$N$，我们通过cosine采样光线得到的$h$并没有分布在$N$周围，因此导致积分结果的方差较大，噪点很多。
+
+解决方法即重要性采样，更多的关于重要性采样的内容我会再新开一篇博客整理，这里直接利用GGX采样算法实现。
+
+
+
+### Importance Sampling
+
+虚幻4即使用了基于GGX分布函数的重要性采样来提高蒙特卡洛积分的精确度，思想在于对接近镜面（`roughness`很低）的平面来说，对镜面反射出射方向分布更多的样本。具体来看，由于我们要对入射光线$L$进行采样，且需要Microfacet surface集中在$N$附近，所以不妨直接对$h$采样，采样函数选择GGX的NDF分布函数（上文有说）。若要采样首先需要`Hammersley Sequence`，详见[Low-discrepancy sequence](https://en.wikipedia.org/wiki/Low-discrepancy_sequence)，可以暂时理解为随机数生成器，虚幻四中实现方式如下：
+
+```glsl
+float2 Hammersley( uint Index, uint NumSamples, uint2 Random )
+{
+  float E1 = frac( (float)Index / NumSamples + float( Random.x & 0xffff ) / (1<<16) );
+  float E2 = float( ReverseBits32(Index) ^ Random.y ) * 2.3283064365386963e-10;
+  return float2( E1, E2 );
+}
+```
+
+过多不赘述，对于给定的`Hammersley Sequence`参数$\xi_1$和$\xi_2$，采样得到的$h$如下：
+
+$$
+\begin{equation}
+\theta=\arctan \left(\frac{\alpha \sqrt{\xi_{1}}}{\sqrt{1-\xi_{1}}}\right)\\
+\phi=2 \pi \xi_{2}
+\label{19}
+\end{equation}
+$$
+
+
+
+整体代码如下：
+
+```c++
+//get Hameersley sequence
+Vec2f Hammersley(uint32_t i, uint32_t N) { // 0-1
+    uint32_t bits = (i << 16u) | (i >> 16u);
+    bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+    bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+    bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+    bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+    float rdi = float(bits) * 2.3283064365386963e-10;
+    return {float(i) / float(N), rdi};
+}
+//importanceSampling half vector according to GGX function
+Vec3f ImportanceSampleGGX(Vec2f Xi, Vec3f N, float roughness) {
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float phi = 2 * PI * Xi.x;
+    float theta = atan(a * sqrt(Xi.y / (1 - Xi.y)));
+    Vec3f H = Vec3f(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+    return H;
+}
+```
+
+已知$h$后$i$就很好求了，$i=2(m \cdot o) m-o$，另外对于任意NDF采样得到的$h$对应的$pdf(h)=D(h)(h\cdot n)$，转化为
+$$
+\begin{equation}
+pdf_{i}(\boldsymbol{i})=p d f_{h}(\boldsymbol{h})\left\|\frac{\partial \omega_{h}}{\partial \omega_{i}}\right\| \label{20}
+\end{equation}
+$$
+
+
+
+其中：
+$$
+\begin{equation}
+\left\|\frac{\partial \omega_{m}}{\partial \omega_{i}}\right\| =\frac{1}{4(\boldsymbol{o}\cdot \boldsymbol{m})}\label{21}
+\end{equation}
+$$
+将$\eqref{20}$和$\eqref{21}$代入$\eqref{18}$中，得到如下结果：
+
+$$
+\begin{equation}
+\operatorname{Integrator}(\boldsymbol{i})=\frac{(\boldsymbol{o} \cdot \boldsymbol{h}) G(\boldsymbol{i}, \boldsymbol{o}, \boldsymbol{h})}{(\boldsymbol{o} \cdot \boldsymbol{n})(\boldsymbol{h} \cdot \boldsymbol{n})}
+\label{22}
+\end{equation}
+$$
+
+即通过GXX NDF采样得到$h$转化为采样$i$，对光线$i$的积分结果如$\eqref{22}$所示，推导完毕公式后代码就很好写了：
+
+```c++
+//其余部分相同
+for (int i = 0; i < sample_count; i++) {
+    float dm = 0.0;
+    Vec2f Xi = Hammersley(i, sample_count);
+    Vec3f H = ImportanceSampleGGX(Xi, N, roughness);
+    Vec3f L = normalize(H * 2.0f * dot(V, H) - V);
+    float NoL = std::max(L.z, 0.0f);
+    float NoH = std::max(H.z, 0.0f);
+    float VoH = std::max(dot(V, H), 0.0f);
+    float NoV = std::max(dot(N, V), 0.0f);
+    float G = GeometrySmith(roughness, NoV, NoL);
+    float integration = VoH * G / (NoV * NoH);
+
+    Li += Vec3f(integration, integration, integration);    
+}
+Li /= sample_count;
+```
+
+最终生成如下的结果：
+
+<img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/20210712231650.png" style="zoom:200%;" />
+
+
+
+上下翻转并取$1-E(\mu_0)$即可得到[Revisiting Physically Based Shading at Imageworks[SIGGRAPH 2017]](https://fpsunflower.github.io/ckulla/data/s2017_pbs_imageworks_slides_v2.pdf)的结果。
+
+$E_{avg}$的求法更加简单，这里不过多赘述。
+
+
+
+## Result
+
+当然，最终给出课件中的结果（HW4的结果图过于丑陋且效果不甚明显）：
+
+![Kulla-Conty Result](https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/20210712232037.png)
+
+
+
+至此这篇文章结束了，有很多想讲的但篇幅原因埋坑到其他博客后续再更吧……这种纯技术型博客真的累人。
 
 
 
