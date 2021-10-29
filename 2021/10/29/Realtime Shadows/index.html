@@ -21,14 +21,16 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":{"enable":true,"caption":true},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="实时阴影是真实感渲染中非常重要的一部分，在离线渲染中，我们对每个shading point进行MIS(Multiple Importance Sampling)，如果是Area Light光源，结果自然会形成十分不错的软阴影，如下图所示：  然而实际上在实时渲染的过程中，采样每道光线是一件十分奢侈的事情，即无法通过重要性采样的方法来求解渲染方程。求解渲染方程通常会利用如下不等式来近似： \[ \b">
+  <meta name="description" content="实时阴影是真实感渲染中非常重要的一部分，在离线渲染中，我们对每个shading point进行MIS(Multiple Importance Sampling)，如果是Area Light光源，基于采样自然会形成十分不错的软阴影，如下图所示：  然而实际上在实时渲染的过程中，采样每道光线是一件十分奢侈的事情，即无法通过重要性采样的方法来求解渲染方程，这是我们在理解所有实时渲染算法与离线渲染算法的关">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Realtime Shadows">
 <meta property="og:url" content="http://example.com/2021/10/29/Realtime%20Shadows/index.html">
 <meta property="og:site_name" content="观棋柯烂">
-<meta property="og:description" content="实时阴影是真实感渲染中非常重要的一部分，在离线渲染中，我们对每个shading point进行MIS(Multiple Importance Sampling)，如果是Area Light光源，结果自然会形成十分不错的软阴影，如下图所示：  然而实际上在实时渲染的过程中，采样每道光线是一件十分奢侈的事情，即无法通过重要性采样的方法来求解渲染方程。求解渲染方程通常会利用如下不等式来近似： \[ \b">
+<meta property="og:description" content="实时阴影是真实感渲染中非常重要的一部分，在离线渲染中，我们对每个shading point进行MIS(Multiple Importance Sampling)，如果是Area Light光源，基于采样自然会形成十分不错的软阴影，如下图所示：  然而实际上在实时渲染的过程中，采样每道光线是一件十分奢侈的事情，即无法通过重要性采样的方法来求解渲染方程，这是我们在理解所有实时渲染算法与离线渲染算法的关">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/cbox_mis.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/shadowMap.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/umbra.png">
 <meta property="article:published_time" content="2021-10-28T16:00:00.000Z">
 <meta property="article:modified_time" content="2021-10-28T16:00:00.000Z">
 <meta property="article:author" content="Liu Ke">
@@ -210,14 +212,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>364</span>
+              <span>2.4k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>2 分钟</span>
             </span>
 
         </div>
@@ -229,15 +231,55 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>实时阴影是真实感渲染中非常重要的一部分，在离线渲染中，我们对每个shading point进行MIS(Multiple Importance Sampling)，如果是Area Light光源，结果自然会形成十分不错的软阴影，如下图所示：</p>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>实时阴影是真实感渲染中非常重要的一部分，在离线渲染中，我们对每个shading point进行MIS(Multiple Importance Sampling)，如果是Area Light光源，基于采样自然会形成十分不错的软阴影，如下图所示：</p>
 <p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/cbox_mis.png" alt="cbox_mis rendered by Nori" /></p>
-<p>然而实际上在实时渲染的过程中，采样每道光线是一件十分奢侈的事情，即无法通过重要性采样的方法来求解渲染方程。求解渲染方程通常会利用如下不等式来近似： <span class="math display">\[
+<p>然而实际上在实时渲染的过程中，采样每道光线是一件十分奢侈的事情，即无法通过重要性采样的方法来求解渲染方程，这是我们在理解所有实时渲染算法与离线渲染算法的关键区别。</p>
+<span id="more"></span>
+<h2 id="math-behind">Math Behind</h2>
+<p>实时渲染中渲染方程的求解通常会利用如下不等式来近似： <span class="math display">\[
 \begin{equation}
 \int_{\Omega} f(x) g(x) \mathrm{d} x \approx \frac{\int_{\Omega} f(x) \mathrm{d} x}{\int_{\Omega} \mathrm{d} x} \cdot \int_{\Omega} g(x) \mathrm{d} x
 \label{1}
 \end{equation}
 \]</span></p>
-<span id="more"></span>
+<p>需要注意该不等式的适用条件如下：</p>
+<ul>
+<li><span class="math inline">\(\mathrm{d}x\)</span>积分区间足够小</li>
+<li>或<span class="math inline">\(g(x)\)</span>函数在积分区间上足够平滑</li>
+</ul>
+<p>后续在<code>Split sum</code>以及<code>Ambient Occulusion</code>中会继续用到该不等式。</p>
+<p>另外，渲染方程如下： <span class="math display">\[
+\begin{equation}
+L_{o}\left(\mathrm{p}, \omega_{o}\right)=\int_{\Omega^{+}} L_{i}\left(\mathrm{p}, \omega_{i}\right) f_{r}\left(\mathrm{p}, \omega_{i}, \omega_{o}\right) \cos \theta_{i} V\left(\mathrm{p}, \omega_{i}\right) \mathrm{d} \omega_{i}
+\label{2}
+\end{equation}
+\]</span> 基于<span class="math inline">\(\eqref{1}\)</span>式以及<span class="math inline">\(\eqref{2}\)</span>式，我们将<code>Visibility</code>项提出后可得到如下转化：</p>
+<p><span class="math display">\[
+\begin{equation}
+L_{o}\left(\mathrm{p}, \omega_{o}\right) \approx \frac{\int_{\Omega^{+}} V\left(\mathrm{p}, \omega_{i}\right) \mathrm{d} \omega_{i}}{\int_{\Omega^{+}} \mathrm{d} \omega_{i}} \cdot \int_{\Omega^{+}} L_{i}\left(\mathrm{p}, \omega_{i}\right) f_{r}\left(\mathrm{p}, \omega_{i}, \omega_{o}\right) \cos \theta_{i} \mathrm{~d} \omega_{i}
+\label{3}
+\end{equation}
+\]</span></p>
+<p>对于Constant Randiance的Area light以及diffuse BRDF来说，<span class="math inline">\(\eqref{3}\)</span>式中<span class="math inline">\(g(x)\)</span>项足够平滑，因此满足不等式的适用条件。</p>
+<p>此时来看拆分出来的<span class="math inline">\(\frac{\int_{\Omega^{+}} V\left(\mathrm{p}, \omega_{i}\right) \mathrm{d} \omega_{i}}{\int_{\Omega^{+}} \mathrm{d} \omega_{i}}\)</span>项，如果将积分视为求和的话，该项相当于求解<span class="math inline">\(\mathrm{d}\omega_i\)</span>范围内的<span class="math inline">\(V\)</span>项平均值，即我们需要求解shading point周围点的平均可见度(Visibility)，由此我们引申出Shadow map的概念。</p>
+<h2 id="shadow-map">Shadow map</h2>
+<p>一言概之，Shadow map即把light视为相机后求解得到的Z-buffer，Shadow map每个像素存放相应点的深度。求解shadow map的伪代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Vec3 lightpos; </span><br><span class="line">Matrix4x4 MVP; <span class="comment">//view lightpos as camera pos</span></span><br><span class="line"><span class="keyword">for</span> every objects:</span><br><span class="line">	newposition = MVP * oldposition</span><br><span class="line"><span class="keyword">for</span> pixel p in shadowmap:</span><br><span class="line">	trace a ray from lightpos to p;</span><br><span class="line">	get the tmin <span class="keyword">and</span> save in shadowmp;</span><br></pre></td></tr></table></figure>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/shadowMap.png" alt="shadowmap(图源:Realtime-Rendering)" /></p>
+<h3 id="artifacts">Artifacts</h3>
+<h2 id="hard-shadow">Hard shadow</h2>
+<p>如上图，有了Shadow Map，我们可以对点光源很轻松的渲染出影阴影，核心思想即检查shading point处的Visibility即可，伪代码如下所示：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Vec3 lightpos;</span><br><span class="line">texture2d shadowMap;</span><br><span class="line"><span class="keyword">for</span> every shading points:</span><br><span class="line">	trace a ray from shading point to lightpos;</span><br><span class="line">	get the intersection pixel of ray <span class="keyword">and</span> shadowMap;</span><br><span class="line">	<span class="keyword">if</span>(<span class="built_in">shadowMap</span>(intersection pixel) &lt; distance from lightpos to shadingpos)</span><br><span class="line">        render black;</span><br><span class="line">	<span class="keyword">else</span> render normal color;</span><br></pre></td></tr></table></figure>
+<p>然而实际上对于Arealight，此时的计算方法不再适用，以下图为示：</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/umbra.png" alt="umbra and penumbra" /></p>
+<p>因为对于点光源而言，每个shading point只有<code>visible</code>和<code>invisible</code>两种状态，阴影的边界是十分明显的，然而对于Area light而言，只有图中蓝色部分可称为被occlusion完全遮挡，其他红色部分只是半遮挡，我们分别命名为<code>umbra</code>（全影）和<code>penumbra</code>（半影），顾名思义。</p>
+<p>Soft shadow相关方法能够更加真实的渲染实际的阴影。</p>
+<h2 id="soft-shadow">Soft shadow</h2>
+<p>进一步，基于我们上述的数学推导</p>
+<h3 id="pcf">PCF</h3>
+<h3 id="pcss">PCSS</h3>
+<h3 id="vssm">VSSM</h3>
+<h3 id="msm">MSM</h3>
 
     </div>
 
@@ -318,6 +360,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#math-behind"><span class="nav-number">1.</span> <span class="nav-text">Math Behind</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shadow-map"><span class="nav-number">2.</span> <span class="nav-text">Shadow map</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#artifacts"><span class="nav-number">2.1.</span> <span class="nav-text">Artifacts</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hard-shadow"><span class="nav-number">3.</span> <span class="nav-text">Hard shadow</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#soft-shadow"><span class="nav-number">4.</span> <span class="nav-text">Soft shadow</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pcf"><span class="nav-number">4.1.</span> <span class="nav-text">PCF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pcss"><span class="nav-number">4.2.</span> <span class="nav-text">PCSS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vssm"><span class="nav-number">4.3.</span> <span class="nav-text">VSSM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#msm"><span class="nav-number">4.4.</span> <span class="nav-text">MSM</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -388,13 +431,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">19k</span>
+    <span title="站点总字数">21k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">17 分钟</span>
+    <span title="站点阅读时长">19 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
