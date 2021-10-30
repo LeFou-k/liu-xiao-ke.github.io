@@ -30,6 +30,8 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/cbox_mis.png">
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/shadowMap.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/shadowMap&#39;s%20artifacts.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/ShadowMap&#39;s%20artifacts%20solution.png">
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/umbra.png">
 <meta property="article:published_time" content="2021-10-28T16:00:00.000Z">
 <meta property="article:modified_time" content="2021-10-28T16:00:00.000Z">
@@ -212,14 +214,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.4k</span>
+              <span>3.4k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
+              <span>3 分钟</span>
             </span>
 
         </div>
@@ -235,6 +237,7 @@
 <p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/cbox_mis.png" alt="cbox_mis rendered by Nori" /></p>
 <p>然而实际上在实时渲染的过程中，采样每道光线是一件十分奢侈的事情，即无法通过重要性采样的方法来求解渲染方程，这是我们在理解所有实时渲染算法与离线渲染算法的关键区别。</p>
 <span id="more"></span>
+<p>首先来理解一下ShadowMap背后的数学原理，即为何要引入ShadowMap以及引入ShadowMap后如何帮助我们求解渲染方程。</p>
 <h2 id="math-behind">Math Behind</h2>
 <p>实时渲染中渲染方程的求解通常会利用如下不等式来近似： <span class="math display">\[
 \begin{equation}
@@ -263,19 +266,33 @@ L_{o}\left(\mathrm{p}, \omega_{o}\right) \approx \frac{\int_{\Omega^{+}} V\left(
 <p>对于Constant Randiance的Area light以及diffuse BRDF来说，<span class="math inline">\(\eqref{3}\)</span>式中<span class="math inline">\(g(x)\)</span>项足够平滑，因此满足不等式的适用条件。</p>
 <p>此时来看拆分出来的<span class="math inline">\(\frac{\int_{\Omega^{+}} V\left(\mathrm{p}, \omega_{i}\right) \mathrm{d} \omega_{i}}{\int_{\Omega^{+}} \mathrm{d} \omega_{i}}\)</span>项，如果将积分视为求和的话，该项相当于求解<span class="math inline">\(\mathrm{d}\omega_i\)</span>范围内的<span class="math inline">\(V\)</span>项平均值，即我们需要求解shading point周围点的平均可见度(Visibility)，由此我们引申出Shadow map的概念。</p>
 <h2 id="shadow-map">Shadow map</h2>
-<p>一言概之，Shadow map即把light视为相机后求解得到的Z-buffer，Shadow map每个像素存放相应点的深度。求解shadow map的伪代码如下：</p>
+<p>一言概之，Shadow map即把light视为相机后求解得到的深度缓存，Shadow map每个像素存放相应点的深度。可以理解为离线渲染中shadowRay的逆向过程。</p>
+<p>求解shadow map的伪代码如下：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Vec3 lightpos; </span><br><span class="line">Matrix4x4 MVP; <span class="comment">//view lightpos as camera pos</span></span><br><span class="line"><span class="keyword">for</span> every objects:</span><br><span class="line">	newposition = MVP * oldposition</span><br><span class="line"><span class="keyword">for</span> pixel p in shadowmap:</span><br><span class="line">	trace a ray from lightpos to p;</span><br><span class="line">	get the tmin <span class="keyword">and</span> save in shadowmp;</span><br></pre></td></tr></table></figure>
 <p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/shadowMap.png" alt="shadowmap(图源:Realtime-Rendering)" /></p>
 <h3 id="artifacts">Artifacts</h3>
+<p>ShadowMap求解shading point阴影的核心是比较shadowRay与shadowMap交点处的值与当前shading point的深度。因此如果比较部分不够准确则会出现Artifacts</p>
+<p>基于ShadowMap渲染出的阴影效果主要由以下两点决定：</p>
+<ol type="1">
+<li><p>ShadowMap的分辨率</p>
+<p>由于ShadowMap是存在分辨率的，每个ShadowMap pixel存放当前pixel还原到世界坐标中的surface对应的depth，因此当ShadowMap的分辨率不足时会导致pixel还原到世界中的surface覆盖范围过大，此时ShadowMap中的深度值不准确，也就是说本应该比该pixel“浅”的shading point可能会被遮挡，即"Self occlusion"现象，见下左图。</p></li>
+<li><p>z-buffer的数值精度</p>
+<p>z-buffer的原理就很简单了，在比较深度时由于浮点数的精度问题导致比较产生相反的结果也会出现"Self Occlusion"类似的Artifacts</p></li>
+</ol>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/shadowMap&#39;s%20artifacts.png" alt="ShadowMap&#39;s Artifacts" /></p>
+<p>解决方法即加上一个<code>bias factor</code>，这也是渲染领域中解决浮点数精度问题的常用方法，然而如上右图所示，如果<code>bias factor</code>调整加入后不改变较低的ShadowMap resolution，会出现<strong>上右图</strong>的Artifacts，即"detached shadows"</p>
+<p>另外，常用的解决Artifacts的方法见下图，左边即常用的存储第一接触面的深度，中间是另一种常见的避免"self-occlusion"，即存储第二接触面的深度，右边为两者的折中办法，存放中间接触面的深度等等，具体细节这里不过多赘述。</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/ShadowMap&#39;s%20artifacts%20solution.png" alt="Artifacts&#39; solution" /></p>
 <h2 id="hard-shadow">Hard shadow</h2>
 <p>如上图，有了Shadow Map，我们可以对点光源很轻松的渲染出影阴影，核心思想即检查shading point处的Visibility即可，伪代码如下所示：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Vec3 lightpos;</span><br><span class="line">texture2d shadowMap;</span><br><span class="line"><span class="keyword">for</span> every shading points:</span><br><span class="line">	trace a ray from shading point to lightpos;</span><br><span class="line">	get the intersection pixel of ray <span class="keyword">and</span> shadowMap;</span><br><span class="line">	<span class="keyword">if</span>(<span class="built_in">shadowMap</span>(intersection pixel) &lt; distance from lightpos to shadingpos)</span><br><span class="line">        render black;</span><br><span class="line">	<span class="keyword">else</span> render normal color;</span><br></pre></td></tr></table></figure>
 <p>然而实际上对于Arealight，此时的计算方法不再适用，以下图为示：</p>
 <p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/umbra.png" alt="umbra and penumbra" /></p>
-<p>因为对于点光源而言，每个shading point只有<code>visible</code>和<code>invisible</code>两种状态，阴影的边界是十分明显的，然而对于Area light而言，只有图中蓝色部分可称为被occlusion完全遮挡，其他红色部分只是半遮挡，我们分别命名为<code>umbra</code>（全影）和<code>penumbra</code>（半影），顾名思义。</p>
-<p>Soft shadow相关方法能够更加真实的渲染实际的阴影。</p>
+<p>因为对于点光源而言，每个shading point只有<code>visible</code>和<code>invisible</code>两种状态，阴影的边界是十分明显的，然而对于Area light而言，只有图中蓝色部分可称为被occlusion完全遮挡，其他红色部分只是半遮挡，我们分别命名为<code>umbra</code>（全影）和<code>penumbra</code>（半影）。</p>
+<p>Soft shadow相关方法能够更加真实的渲染阴影。</p>
 <h2 id="soft-shadow">Soft shadow</h2>
-<p>进一步，基于我们上述的数学推导</p>
+<p>进一步，基于我们上述的数学推导以及渲染原理的概述，此时对软阴影的渲染应该有了大概的把握，核心原理即找到shading point点处的<code>visibility</code>，由上图亦可知，shading point的<code>visibility</code>应该等价于其周围点<code>visibility</code>的均值，很容易想到滤波的方法。</p>
+<p>后续PCF、PCSS、VSSM、MSM等方法，一言蔽之，PCF即固定滤波核的大小；PCSS用一个和shading point到blocker距离成反比的可变滤波核大小来滤波；VSSM则用来简化这个过程，通过将shading point周围点的depth大小用正态分布来描述从而避免滤波；MSM则进一步将VSSM中的正态分布推广，使其更加接近实际的PCF中的Depth分布。</p>
 <h3 id="pcf">PCF</h3>
 <h3 id="pcss">PCSS</h3>
 <h3 id="vssm">VSSM</h3>
@@ -431,13 +448,13 @@ L_{o}\left(\mathrm{p}, \omega_{o}\right) \approx \frac{\int_{\Omega^{+}} V\left(
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">21k</span>
+    <span title="站点总字数">22k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">19 分钟</span>
+    <span title="站点阅读时长">20 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
