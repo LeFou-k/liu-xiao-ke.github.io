@@ -130,13 +130,34 @@ Soft shadow相关方法能够更加真实的渲染阴影。
 
 ## Soft shadow
 
-进一步，基于我们上述的数学推导以及渲染原理的概述，此时对软阴影的渲染应该有了大概的把握，核心原理即找到shading point点处的`visibility`，由上图亦可知，shading point的`visibility`应该等价于其周围点`visibility`的均值，很容易想到滤波的方法。
+进一步，基于我们上述的数学推导以及渲染原理的概述，此时对软阴影的渲染应该有了大概的把握，核心原理即找到shading point点处的`visibility`，由上图亦可知，shading point的`visibility`应该等价于check其周围点`visibility`的均值，即滤波的方法。本质上这些方法的核心都是离线渲染中ShadowRay的逆向trace过程，通过ShadowRay trace到的点进行采样从而估计当前Shading Point的visibility
 
 后续PCF、PCSS、VSSM、MSM等方法，一言蔽之，PCF即固定滤波核的大小；PCSS用一个和shading point到blocker距离成反比的可变滤波核大小来滤波；VSSM则用来简化这个过程，通过将shading point周围点的depth大小用正态分布来描述从而避免滤波；MSM则进一步将VSSM中的正态分布推广，使其更加接近实际的PCF中的Depth分布。
 
 ### PCF
 
+前面铺垫了这么多，PCF整体的思想就很好理解了。PCF(Percentage Closer Filtering)顾名思义，即采样周围的点并计算shadingPoint相对这些样本visible的比例。需要注意的是，PCF是对采样点visibility的滤波，而非对Shadow Map的滤波，有如下几个原因：
+
+1. 对Shadow Map滤波并没有实际意义，滤波后仅会得到一张blurred的Shadow Map，再进行比较得到的结果仍然是0/1的visibility，所以求解得到的阴影仍然是边缘锐利的，无益于Soft shadow
+2. 如$\eqref{3}$式所示，基于数学原理来看也是对$V$项的滤波。
+
+PCF的伪代码如下所示：
+
+```c++
+for every pixel in samples:
+	if(shadingPoint.depth < pixel.depth) //this pixel is visible
+        add this pixel to final percentage
+```
+
+PCF的伪代码是非常简单的，事实上PCF并非Physical-Based，因为没有利用到Shading point到周围blocker的距离，意味着无论Shading Point与blocker距离多远，penumbra(半影)的大小是相同的，如下图所示。
+
+<img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/PCF.png" alt="image-20211031234155865" style="zoom:67%;" />
+
+然而实际上，Physical-Based的阴影是距离Blocker越近越Shaper，相反则越Softer，直觉上阴影应该和Shading point到Blocker的距离有关，由此引出PCSS的算法。
+
 ### PCSS
+
+
 
 ### VSSM
 
