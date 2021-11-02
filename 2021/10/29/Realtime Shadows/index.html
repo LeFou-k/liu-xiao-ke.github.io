@@ -34,6 +34,13 @@
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/ShadowMap&#39;s%20artifacts%20solution.png">
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/umbra.png">
 <meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/PCF.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/Penumbra size.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/Block%20Search%20Centain%20Region.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/PCSS.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/MIPMAP.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/SAT.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/Light%20Leaking.png">
+<meta property="og:image" content="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/MSM%20vs%20VSSM.png">
 <meta property="article:published_time" content="2021-10-28T16:00:00.000Z">
 <meta property="article:modified_time" content="2021-10-28T16:00:00.000Z">
 <meta property="article:author" content="Liu Ke">
@@ -215,14 +222,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>4.2k</span>
+              <span>7.8k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>4 分钟</span>
+              <span>7 分钟</span>
             </span>
 
         </div>
@@ -306,8 +313,95 @@ L_{o}\left(\mathrm{p}, \omega_{o}\right) \approx \frac{\int_{\Omega^{+}} V\left(
 <p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/PCF.png" alt="image-20211031234155865" style="zoom:67%;" /></p>
 <p>然而实际上，Physical-Based的阴影是距离Blocker越近越Shaper，相反则越Softer，直觉上阴影应该和Shading point到Blocker的距离有关，由此引出PCSS的算法。</p>
 <h3 id="pcss">PCSS</h3>
+<p>PCSS即采用动态调整滤波核大小的PCF，滤波核越大阴影越soft，反之越hard，直觉上滤波核的大小应该和阴影到Blocker的距离相关，严格的证明如下所示：</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/Penumbra size.png" alt="image-20211102135958189" style="zoom:67%;" /></p>
+<p>如图所示，根据相似三角形有： <span class="math display">\[
+\begin{equation}
+w_{\text {Penumbra }}=\frac{\left(d_{\text {Receiver }}-d_{\text {Blocker }}\right) \cdot w_{\text {Light }}}{d_{\text {Blocker }}}
+\label{4}
+\end{equation}
+\]</span> 从<span class="math inline">\(\eqref{4}\)</span>式中得知，此时我们直接查shadingpoint在shadowmap上的映射可知<span class="math inline">\(d_{Receiver}\)</span>，<span class="math inline">\(w_{Light}\)</span>是已知参数，唯一未知项即<span class="math inline">\(d_{Blocker}\)</span>，如果<span class="math inline">\(d_{Blocker}\)</span>可知那么很自然的可以得知<span class="math inline">\(w_{Penumbra}\)</span>亦即PCSS中半影滤波核的大小。</p>
+<p>总结下来PCSS整体分为两步：第一步求解<span class="math inline">\(d_{Blocker}\)</span>，第二步根据<span class="math inline">\(d_{Blocker}\)</span>得到滤波核大小再进行滤波。</p>
+<p>具体来看，</p>
+<ol type="1">
+<li><p>Blocker Search(getting the average <strong>blocker</strong> depth in a <strong>certain region</strong>)</p>
+<p>注意Blocker Search的搜索范围，仍然是一个相似三角形的做法，如下图：</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/Block%20Search%20Centain%20Region.png" alt="image-20211102142101083" /></p>
+<p>求得搜索范围后即可在区间内搜索求解Average blocker depth，伪代码如下所示：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//get average blocker depth</span></span><br><span class="line"><span class="type">float</span> findBlocker()&#123;</span><br><span class="line">    <span class="type">float</span> blockSize = LIGHT_WIDTH * (zReceiver - zNear) / zReceiver;</span><br><span class="line">    <span class="type">float</span> blockerNum = <span class="number">0.0</span>, avg = <span class="number">0.0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; BLOCKER_SEARCH_SAMPLES; ++i)&#123;</span><br><span class="line">        <span class="type">vec2</span> sampleCoord; <span class="comment">//sample a coord in blockSize range</span></span><br><span class="line">        <span class="type">float</span> sampledepth; <span class="comment">//get sample depth</span></span><br><span class="line">        <span class="keyword">if</span>(sampledepth &lt; zReceiver)&#123;</span><br><span class="line">            avg += sampledepth;</span><br><span class="line">            blockerNum += <span class="number">1.0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> avg / blockerNum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>Penumbra estimation(use average blocker depth to estimate filter size)</p>
+<p>这一步就相对很容易了，直接套用<span class="math inline">\(\eqref{4}\)</span>式公式求解得到PCF的滤波核大小。</p></li>
+<li><p>Percentage Closer Filtering</p>
+<p>参考PCF方法，已知<span class="math inline">\(w_{Penumbra}\)</span>可直接按照PCF流程滤波求解即可。</p></li>
+</ol>
+<p>最后附上PCSS的结果，可以很明显的看到阴影随着到Blocker距离的增大边缘也逐渐虚化，PCSS可以认为是一种最准确的结果，后续的VSSM和MSM也只是尽可能的加速这个求解的过程。</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/PCSS.png" alt="PCSS_xxx" /></p>
 <h3 id="vssm">VSSM</h3>
+<p>VSSM(Variance Soft Shadow Mapping)，让我们回到最开始软阴影原理部分，无论是PCF还是PCSS的目的都是求Shading Point周围点的Visibility情况，即“比当前点更visible占总体的比例”，进一步这是一个<span class="math inline">\(P\{x &gt; t\}\)</span>的问题，由此可以想到，如果能够知道周围点depth分布的话，那么就可以估计出<span class="math inline">\(P\{x&gt;t\}\)</span>的近似值了。</p>
+<p>VSSM就是这样一种想法，通过快速计算区域内的均值和方差从而近似求解。在VSSM中，甚至可以不需要正态分布，仅通过切比雪夫不等式得到对<span class="math inline">\(P\{x&gt;t\}\)</span>的近似估计，见下式： <span class="math display">\[
+\begin{equation}
+P(x&gt;t) \leq \frac{\sigma^{2}}{\sigma^{2}+(t-\mu)^{2}}
+\label{5}
+\end{equation}
+\]</span> 同样，要计算<span class="math inline">\(P\{x&gt;t\}\)</span>的结果只需得到整体的<span class="math inline">\(\mu\)</span>和<span class="math inline">\(\sigma\)</span>即可。</p>
+<p>VSSM算法由于避免了搜索过程，因此可以大大提高PCSS中第一步Blocker Search和第三步PCF的速度，下面具体来看VSSM的实现方式。</p>
+<h4 id="blocker-search">Blocker Search</h4>
+<p>回忆一下Blocker Search的执行过程，通过搜索相应的Blocker size得到Average Blocker depth，那么如何加速这个过程呢？分析Search区间可知，对当前Shading point只有Blocker和非Blocker两种像素，以<span class="math inline">\(Z_{occ}\)</span>和<span class="math inline">\(Z_{unocc}\)</span>来分别表示，以<span class="math inline">\(N_o\)</span>和<span class="math inline">\(N_u\)</span>来表示搜索区间Blocker和非Blocker的数目，<span class="math inline">\(Z_{avg}\)</span>表示搜索区间深度的均值，则显然有下式： <span class="math display">\[
+\begin{equation}
+\frac{N_{u}}{N} z_{\text {unocc }}+\frac{N_{o}}{N} z_{o c c}=z_{A v g}
+\end{equation}
+\]</span> 以及： <span class="math display">\[
+\begin{equation}
+N_{u} + N_{o} = N
+\end{equation}
+\]</span> 已知<span class="math inline">\(z_{avg}\)</span>可快速估计（见下节），<span class="math inline">\(\frac{N_o}{N}\)</span>可通过<span class="math inline">\(P\{x&gt;t\}\)</span>估计，<span class="math inline">\(z_{occ}\)</span>为所求结果，VSSM大胆估计<span class="math inline">\(z_{unocc}=t\)</span>，即可求得<span class="math inline">\(z_{occc}\)</span></p>
+<h4 id="mu和sigma的快速估计"><span class="math inline">\(\mu\)</span>和<span class="math inline">\(\sigma\)</span>的快速估计</h4>
+<p>由均值和方差公式知， <span class="math display">\[
+\begin{equation}
+\operatorname{Var}(X)=\mathrm{E}\left(X^{2}\right)-\mathrm{E}^{2}(X)
+\end{equation}
+\]</span> 因此求解<span class="math inline">\(X^{2}\)</span>的均值和<span class="math inline">\(X\)</span>的均值即可，有<strong>MIPMAP</strong>和<strong>SAT</strong>两种方法。</p>
+<ol type="1">
+<li><p>MIPMAP</p>
+<p>如下图所示，可根据ShadowMap中的depth构建MipMap，之后根据Blocker Search size找到对应层进行双向插值，如果是两层之间则三向插值即可，<span class="math inline">\(X^2\)</span>求解同理。</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/MIPMAP.png" alt="image-20211102154150650" /></p></li>
+<li><p>SAT(Summed Area Table)</p>
+<p>SAT的核心思想即维护一个表记录从0位置到当前位置的总和，在生成ShadowMap的过程中额外生成一张<span class="math inline">\(depth\)</span>和<span class="math inline">\(depth^2\)</span>的表即可。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vector&lt;vector&lt;<span class="keyword">float</span>&gt;&gt; SAT;</span><br><span class="line">SAT[i][j];<span class="comment">//means sum up [0][0] to [i][j]</span></span><br><span class="line"><span class="comment">//calculate (p,q) to (m,n)</span></span><br><span class="line"><span class="keyword">float</span> avg = (SAT[m][n]-SAT[m][q]-SAT[p][n]+SAT[p<span class="number">-1</span>][q<span class="number">-1</span>]) / (m - p) / (n - q);</span><br></pre></td></tr></table></figure>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/SAT.png" alt="image-20211102154707593" /></p></li>
+</ol>
+<p>VSSM整体流程如下：</p>
+<ol type="1">
+<li>确定Blocker Search的范围</li>
+<li>根据MipMap或SAT求解Blocker Search范围内的<span class="math inline">\(\mu\)</span>和<span class="math inline">\(\sigma\)</span></li>
+<li>根据Blocker Search优化方法估计<span class="math inline">\(Z_{occu}\)</span></li>
+<li>由<span class="math inline">\(Z_{occu}\)</span>计算得到PCF的filter size</li>
+<li>求PCF filter范围内的<span class="math inline">\(\mu\)</span>，<span class="math inline">\(\sigma\)</span></li>
+<li>根据式<span class="math inline">\(\eqref{5}\)</span>切比雪夫不等式求得visibility</li>
+</ol>
+<h4 id="artifacts-1">Artifacts</h4>
+<p>直接上结论，VSSM会导致light leaking的现象，根本原因在于式<span class="math inline">\(\eqref{5}\)</span>切比雪夫不等式的适用范围，切比雪夫不等式仅在<span class="math inline">\(t &gt;Z_{avg}\)</span>时有效，即如果<span class="math inline">\(Z_{avg}\)</span>比较大（Overly bright）会出现这种情况：</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/Light%20Leaking.png" alt="VSSM&#39;s artifacts" /></p>
+<p>解决办法即下面的MSM(Moment Shadow Mapping)</p>
 <h3 id="msm">MSM</h3>
+<p>MSM采用了更加准确的方式来拟合depth 分布从而达到更加精确的效果，Moments即<span class="math inline">\(x, x^{2}, x^{3}, x^{4}, \ldots\)</span>，实际VSSM只采用了前两项，实际上4已经能够足够好的你和depth的CDF(Culmative Distribution Function)累积分布函数，实现方法类似VSSM，在求ShadowMap时额外计算<span class="math inline">\(z, z^{2}, z^{3}, z^{4}\)</span>，相比于VSSM能够得到更加精确的结果，但是显然空间更加costly</p>
+<p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/MSM%20vs%20VSSM.png" alt="VSSM vs MSM" /></p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Realtime shadows大部分相关算法都已经介绍完毕，主要围绕PCSS的引出以及如何优化PCSS过程展开，基本基于GAMES202加上《Real time rendering》的一些内容，可以视为GAMES202的课程笔记。</p>
+<h2 id="参考资料">参考资料</h2>
+<div id="footnotes">
+<hr>
+<div id="footnotelist">
+<ol style="list-style: none; padding-left: 0; margin-left: 40px">
+<li id="fn:1">
+<span style="display: inline-block; vertical-align: top; padding-right: 10px; margin-left: -40px">1.</span><span style="display: inline-block; vertical-align: top; margin-left: 10px;">《Realtime Rendering 4th edition》<a href="#fnref:1" rev="footnote"> ↩</a></span>
+</li>
+<li id="fn:2">
+<span style="display: inline-block; vertical-align: top; padding-right: 10px; margin-left: -40px">2.</span><span style="display: inline-block; vertical-align: top; margin-left: 10px;">GAMES202 Realtime Shadows<a href="#fnref:2" rev="footnote"> ↩</a></span>
+</li>
+</ol>
+</div>
+</div>
 
     </div>
 
@@ -388,7 +482,7 @@ L_{o}\left(\mathrm{p}, \omega_{o}\right) \approx \frac{\int_{\Omega^{+}} V\left(
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#math-behind"><span class="nav-number">1.</span> <span class="nav-text">Math Behind</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shadow-map"><span class="nav-number">2.</span> <span class="nav-text">Shadow map</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#artifacts"><span class="nav-number">2.1.</span> <span class="nav-text">Artifacts</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hard-shadow"><span class="nav-number">3.</span> <span class="nav-text">Hard shadow</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#soft-shadow"><span class="nav-number">4.</span> <span class="nav-text">Soft shadow</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pcf"><span class="nav-number">4.1.</span> <span class="nav-text">PCF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pcss"><span class="nav-number">4.2.</span> <span class="nav-text">PCSS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vssm"><span class="nav-number">4.3.</span> <span class="nav-text">VSSM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#msm"><span class="nav-number">4.4.</span> <span class="nav-text">MSM</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#math-behind"><span class="nav-number">1.</span> <span class="nav-text">Math Behind</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shadow-map"><span class="nav-number">2.</span> <span class="nav-text">Shadow map</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#artifacts"><span class="nav-number">2.1.</span> <span class="nav-text">Artifacts</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hard-shadow"><span class="nav-number">3.</span> <span class="nav-text">Hard shadow</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#soft-shadow"><span class="nav-number">4.</span> <span class="nav-text">Soft shadow</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pcf"><span class="nav-number">4.1.</span> <span class="nav-text">PCF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pcss"><span class="nav-number">4.2.</span> <span class="nav-text">PCSS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vssm"><span class="nav-number">4.3.</span> <span class="nav-text">VSSM</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#blocker-search"><span class="nav-number">4.3.1.</span> <span class="nav-text">Blocker Search</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mu%E5%92%8Csigma%E7%9A%84%E5%BF%AB%E9%80%9F%E4%BC%B0%E8%AE%A1"><span class="nav-number">4.3.2.</span> <span class="nav-text">\(\mu\)和\(\sigma\)的快速估计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#artifacts-1"><span class="nav-number">4.3.3.</span> <span class="nav-text">Artifacts</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#msm"><span class="nav-number">4.4.</span> <span class="nav-text">MSM</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conclusion"><span class="nav-number">5.</span> <span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -459,13 +553,13 @@ L_{o}\left(\mathrm{p}, \omega_{o}\right) \approx \frac{\int_{\Omega^{+}} V\left(
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">22k</span>
+    <span title="站点总字数">26k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">20 分钟</span>
+    <span title="站点阅读时长">24 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
