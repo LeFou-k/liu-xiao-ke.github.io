@@ -227,7 +227,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 
 ### Shadow-masking function
 
-可以清楚的发现，公式$\eqref{2}$中的BRDF分母项为$(\boldsymbol{n},\boldsymbol{i})(\boldsymbol{n},\boldsymbol{o})$，当camera与shading point向量与$N$呈90度夹角时，即$(\boldsymbol{n},\boldsymbol{i})\to0$，此时会导致BRDF无限大，会渲染出来一条“白边”，为避免这种现象从而引入了shadow-masking function $G$.
+由于从view位置向微表面看去时会有部分表面被遮挡，通过定义shadow-masking term可以给出对法向为$h$的微表面从$i$方向看过去能够看到的比例，亦即微表面遮住部分光从而呈现的比例；从另一个角度来看，可以清楚的发现，公式$\eqref{2}$中的BRDF分母项为$(\boldsymbol{n},\boldsymbol{i})(\boldsymbol{n},\boldsymbol{o})$，当camera与shading point向量与$N$呈90度夹角时，即$(\boldsymbol{n},\boldsymbol{i})\to0$，此时会导致BRDF无限大，会渲染出来一条“白边”，为避免这种现象从而引入了shadow-masking function $G$.
 
 常有的shadow-masking function为Smith模型：
 $$
