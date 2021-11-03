@@ -355,7 +355,7 @@ D_{G G X}(\boldsymbol{h})=\frac{\alpha^{2}}{\pi\left((\boldsymbol{n} \cdot \bold
 <p>对比来看，GGX最显著的特点即“longer tail”，表现在实际中即高光的过渡效果会更好，看起来更符合实际：</p>
 <p><img src="https://planetside.co.uk/wp-content/uploads/2020/11/specmodels_v2_Conductive_FrontLit_Socials-450x267.jpg" alt="Specular roughness models on conductor surface." style="zoom:150%;" /></p>
 <h3 id="shadow-masking-function">Shadow-masking function</h3>
-<p>可以清楚的发现，公式<span class="math inline">\(\eqref{2}\)</span>中的BRDF分母项为<span class="math inline">\((\boldsymbol{n},\boldsymbol{i})(\boldsymbol{n},\boldsymbol{o})\)</span>，当camera与shading point向量与<span class="math inline">\(N\)</span>呈90度夹角时，即<span class="math inline">\((\boldsymbol{n},\boldsymbol{i})\to0\)</span>，此时会导致BRDF无限大，会渲染出来一条“白边”，为避免这种现象从而引入了shadow-masking function <span class="math inline">\(G\)</span>.</p>
+<p>由于从view位置向微表面看去时会有部分表面被遮挡，通过定义shadow-masking term可以给出对法向为<span class="math inline">\(h\)</span>的微表面从<span class="math inline">\(i\)</span>方向看过去能够看到的比例，亦即微表面遮住部分光从而呈现的比例；从另一个角度来看，可以清楚的发现，公式<span class="math inline">\(\eqref{2}\)</span>中的BRDF分母项为<span class="math inline">\((\boldsymbol{n},\boldsymbol{i})(\boldsymbol{n},\boldsymbol{o})\)</span>，当camera与shading point向量与<span class="math inline">\(N\)</span>呈90度夹角时，即<span class="math inline">\((\boldsymbol{n},\boldsymbol{i})\to0\)</span>，此时会导致BRDF无限大，会渲染出来一条“白边”，为避免这种现象从而引入了shadow-masking function <span class="math inline">\(G\)</span>.</p>
 <p>常有的shadow-masking function为Smith模型： <span class="math display">\[
 \begin{equation}
 G_{S m i t h}(\boldsymbol{i}, \boldsymbol{o}, \boldsymbol{h})=G_{\text {Schlick }}(\boldsymbol{l}, \boldsymbol{h}) G_{\text {Schlick }}(\boldsymbol{v}, \boldsymbol{h}) \label{12}
