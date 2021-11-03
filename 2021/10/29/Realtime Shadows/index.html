@@ -384,7 +384,7 @@ N_{u} + N_{o} = N
 <p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/Light%20Leaking.png" alt="VSSM&#39;s artifacts" /></p>
 <p>解决办法即下面的MSM(Moment Shadow Mapping)</p>
 <h3 id="msm">MSM</h3>
-<p>MSM采用了更加准确的方式来拟合depth 分布从而达到更加精确的效果，Moments即<span class="math inline">\(x, x^{2}, x^{3}, x^{4}, \ldots\)</span>，实际VSSM只采用了前两项，实际上4已经能够足够好的你和depth的CDF(Culmative Distribution Function)累积分布函数，实现方法类似VSSM，在求ShadowMap时额外计算<span class="math inline">\(z, z^{2}, z^{3}, z^{4}\)</span>，相比于VSSM能够得到更加精确的结果，但是显然空间更加costly</p>
+<p>MSM采用了更加准确的方式来拟合depth 分布从而达到更加精确的效果，Moments即<span class="math inline">\(x, x^{2}, x^{3}, x^{4}, \ldots\)</span>，实际VSSM只采用了前两项，实际上4已经能够足够好的拟合depth的CDF(Culmative Distribution Function)累积分布函数，实现方法类似VSSM，在求ShadowMap时额外计算<span class="math inline">\(z, z^{2}, z^{3}, z^{4}\)</span>，相比于VSSM能够得到更加精确的结果，但是显然空间更加costly</p>
 <p><img src="https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/MSM%20vs%20VSSM.png" alt="VSSM vs MSM" /></p>
 <h2 id="conclusion">Conclusion</h2>
 <p>Realtime shadows大部分相关算法都已经介绍完毕，主要围绕PCSS的引出以及如何优化PCSS过程展开，基本基于GAMES202加上《Real time rendering》的一些内容，可以视为GAMES202的课程笔记。</p>
