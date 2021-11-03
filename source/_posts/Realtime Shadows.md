@@ -296,7 +296,7 @@ VSSM整体流程如下：
 
 ### MSM
 
-MSM采用了更加准确的方式来拟合depth 分布从而达到更加精确的效果，Moments即$x, x^{2}, x^{3}, x^{4}, \ldots$，实际VSSM只采用了前两项，实际上4已经能够足够好的你和depth的CDF(Culmative Distribution Function)累积分布函数，实现方法类似VSSM，在求ShadowMap时额外计算$z, z^{2}, z^{3}, z^{4}$，相比于VSSM能够得到更加精确的结果，但是显然空间更加costly
+MSM采用了更加准确的方式来拟合depth 分布从而达到更加精确的效果，Moments即$x, x^{2}, x^{3}, x^{4}, \ldots$，实际VSSM只采用了前两项，实际上4已经能够足够好的拟合depth的CDF(Culmative Distribution Function)累积分布函数，实现方法类似VSSM，在求ShadowMap时额外计算$z, z^{2}, z^{3}, z^{4}$，相比于VSSM能够得到更加精确的结果，但是显然空间更加costly
 
 ![VSSM vs MSM](https://lk-image-bed.oss-cn-beijing.aliyuncs.com/images/MSM vs VSSM.png)
 
