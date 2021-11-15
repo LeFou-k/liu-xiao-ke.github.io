@@ -513,7 +513,9 @@ $E_{avg}$的求法更加简单，这里不过多赘述。
 
 ## 参考资料
 
-[^1]: https://www.graphics.cornell.edu/~bjw/microfacetbsdf.pdf
-[^2]: https://learnopengl.com/PBR/Theory
-[^3]: https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html
+[^1]: [https://www.graphics.cornell.edu/~bjw/microfacetbsdf.pdf](https://www.graphics.cornell.edu/~bjw/microfacetbsdf.pdf)
+
+[^2]: [https://learnopengl.com/PBR/Theory](https://learnopengl.com/PBR/Theory)
+
+[^3]: [https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)
 
